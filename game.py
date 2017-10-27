@@ -116,9 +116,14 @@ class Player:
         return self.num_moves == self.length * self.width
 
 class AIPlayer(Player):
-    def __init__(self, length, width, num_mines):
-        # Not implemented yet.
-        self.grid = Grid(length, width, num_mines)
+    # given action, return the reward.
+    def move(action, x, y):
+        if action == "hint":
+            return self.hint()
+        elif action == "click":
+            return self.click(x, y)
+        elif action == "flag":
+            return self.flag(x, y)
 
 def main():
     # To be overridden
