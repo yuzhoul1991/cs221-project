@@ -94,7 +94,7 @@ class Player:
 
     # Returns value: reward in this action.
     def click(self, x, y):
-        return self.reward(x, y, -100, 1)
+        return self.reward(x, y, -20, 1)
 
     # Returns value: reward in this action.
     def flag(self, x, y):
@@ -109,8 +109,8 @@ class Player:
         self.currentPlayerBoard[x][y] = -1
         self.currentMines.append((x, y))
         self.num_moves += 1
-        self.score -= 10
-        return ((x, y), -10)
+        self.score -= 3
+        return ((x, y), -3)
 
     def gameEnds(self):
         return self.num_moves == self.length * self.width
