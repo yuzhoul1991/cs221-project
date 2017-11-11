@@ -163,4 +163,6 @@ def main():
                 print "unknown argument"
         except:
             print "invalid argument - try again"
-main()
+
+if __name__ == '__main__':
+    main()
