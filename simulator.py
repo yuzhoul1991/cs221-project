@@ -1,7 +1,8 @@
 import Tkinter as tk
+import threading
 import tkMessageBox
 import random
-import game
+from Grid import Grid
 
 class Tile:
     images = {}
@@ -25,18 +26,23 @@ class Tile:
         self.img = self.images['tile_plain']
         self.btn = tk.Button(frame, image=self.img)
 
-    def lclick(self):
+    def click(self):
+        print "left click"
         if self.is_mine:
             self.img = self.images['tile_mine']
         else:
             self.img = self.images['tile_numbers'][self.num]
         self.btn.config(image=self.img)
 
-class Simulator:
+    def flag(self):
+        print "right click"
+        self.img = self.images['tile_flag']
+        self.btn.config(image=self.img)
+
+class Gui:
     def __init__(self, root, grid):
         self.tiles = []
         self.grid = grid
-        self.images = {}
         self.root = root
         self.root.title("Minesweeper")
         self.frame = tk.Frame(self.root)
@@ -51,7 +57,10 @@ class Simulator:
         tk.Label(self.frame, text="MineSweeper").grid(row=0, column=0, columnspan=10)
 
     def lclick_handler(self, x, y):
-        return lambda event: self.tiles[x][y].lclick()
+        return lambda event: self.tiles[x][y].click()
+
+    def rclick_handler(self, x, y):
+        return lambda event: self.tiles[x][y].flag()
 
     def create_buttons(self):
         for i in range(0, grid.length):
@@ -61,10 +70,29 @@ class Simulator:
                 btn = self.tiles[i][j].btn
                 btn.grid(row=i, column=j)
                 btn.bind('<Button-1>', self.lclick_handler(i, j))
+                btn.bind('<Button-2>', self.rclick_handler(i, j))
+
+class Simulator(threading.Thread):
+    def __init__(self, gui):
+        threading.Thread.__init__(self)
+        self.gui = gui
+
+    def run(self):
+        import time
+        time.sleep(2)
+        for i in range(0, self.gui.grid.length):
+            for j in range(0, self.gui.grid.width):
+                time.sleep(0.2)
+                btn = self.gui.tiles[i][j].btn
+                btn.focus_force()
+                btn.event_generate("<Button-1>")
+
 
 if __name__ == '__main__':
-    grid = game.Grid(10, 10, 10)
+    grid = Grid(10, 10, 10)
     root = tk.Tk()
     Tile.import_images()
-    sim = Simulator(root, grid)
-    sim.run()
+    gui = Gui(root, grid)
+    sim = Simulator(gui)
+    #sim.start()
+    gui.run()
