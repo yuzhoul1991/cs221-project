@@ -105,7 +105,7 @@ class Player:
     def hint(self):
         # No more mines to hint, we should return a very low reward.
         if len(self.currentMines) == self.num_mines:
-            return self.currentMines[0], -100
+            return self.currentMines[0], -50
         x, y = self.grid.randomMine(self.currentMines)
         self.currentPlayerBoard[x][y] = -1
         self.currentMines.append((x, y))
