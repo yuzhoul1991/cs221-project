@@ -1,6 +1,7 @@
 """A command line version of Minesweeper"""
 import random
 import sys
+import AIPlayer
 
 class Grid:
     def __init__(self, length, width, num_mines):
@@ -115,54 +116,59 @@ class Player:
     def gameEnds(self):
         return self.num_moves == self.length * self.width
 
-class AIPlayer(Player):
-    # given action, return the reward.
-    def move(action, x, y):
-        if action == "hint":
-            return self.hint()
-        elif action == "click":
-            return self.click(x, y)
-        elif action == "flag":
-            return self.flag(x, y)
-
 def main():
     # To be overridden
-    player = Player(1,1,1)
-    while True:
-        try:
-            sys.stdout.write('>> ')
-            line = sys.stdin.readline().strip()
-            if not line:
-                break
-            args = line.split()
-            if args[0] == "start":
-                player = Player(int(args[1]), int(args[2]), int(args[3]))
-            elif args[0] == "click":
-                player.click(int(args[1]), int(args[2]))
-                if player.gameEnds():
+    if len(sys.argv) < 2:
+        print "You need more input params! Sample usage:"
+        print "python game.py human"
+        print "python game.py baseline 10 10 10 - to start a baseline AI with 10*10 board with 10 mines"
+        print "python game.py baseline 10 10 10 100 - to start a baseline AI with 10*10 board with 10 mines, 100 times"
+        return
+    if sys.argv[1] == "human":
+        player = Player(1,1,1)
+        while True:
+            try:
+                sys.stdout.write('>> ')
+                line = sys.stdin.readline().strip()
+                if not line:
+                    break
+                args = line.split()
+                if args[0] == "start":
+                    player = Player(int(args[1]), int(args[2]), int(args[3]))
+                elif args[0] == "click":
+                    player.click(int(args[1]), int(args[2]))
+                    if player.gameEnds():
+                        print "Final score: " + str(player.score)
+                        break
+                elif args[0] == "flag":
+                    player.flag(int(args[1]), int(args[2]))
+                    if player.gameEnds():
+                        print "Final score: " + str(player.score)
+                        break
+                elif args[0] == "print":
+                    if len(args) > 1:
+                        player.printCorrectBoard()
+                    else:
+                        player.printPlayerBoard()
+                elif args[0] == "hint":
+                    print player.hint()[0]
+                elif args[0] == "score":
+                    print player.score
+                elif args[0] == "quit":
                     print "Final score: " + str(player.score)
                     break
-            elif args[0] == "flag":
-                player.flag(int(args[1]), int(args[2]))
-                if player.gameEnds():
-                    print "Final score: " + str(player.score)
-                    break
-            elif args[0] == "print":
-                if len(args) > 1:
-                    player.printCorrectBoard()
                 else:
-                    player.printPlayerBoard()
-            elif args[0] == "hint":
-                print player.hint()[0]
-            elif args[0] == "score":
-                print player.score
-            elif args[0] == "quit":
-                print "Final score: " + str(player.score)
-                break
-            else:
-                print "unknown argument"
-        except:
-            print "invalid argument - try again"
+                    print "unknown argument"
+            except:
+                print "invalid argument - try again"
+    elif sys.argv[1] == "baseline":
+        num_run = 1 if len(sys.argv) < 6 else int(sys.argv[5])
+        score = 0
+        for _ in range(num_run):
+            player = AIPlayer.BaselineAIPlayer(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
+            score += player.run()
+        print "Final score is: " + str(float(score) / num_run)
+
 
 if __name__ == '__main__':
     main()
