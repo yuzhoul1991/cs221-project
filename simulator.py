@@ -13,6 +13,7 @@ class Tile:
         klass.images['tile_flag'] = tk.PhotoImage(file="images/tile_flag.gif")
         klass.images['tile_wrong'] = tk.PhotoImage(file="images/tile_wrong.gif")
         klass.images['tile_numbers'] = []
+        klass.images['tile_numbers'].append(tk.PhotoImage(file='images/tile_clicked.gif'))
         for x in range(1, 9):
             klass.images['tile_numbers'].append(tk.PhotoImage(file='images/tile_'+str(x)+'.gif'))
 
@@ -65,4 +66,5 @@ if __name__ == '__main__':
     grid = game.Grid(10, 10, 10)
     root = tk.Tk()
     Tile.import_images()
-    sim = Simulator(root, grid).run()
+    sim = Simulator(root, grid)
+    sim.run()
