@@ -47,7 +47,8 @@ class Gui:
         self.root.title("Minesweeper")
         self.frame = tk.Frame(self.root)
         self.frame.pack()
-        self.title_label()
+        #self.title_label()
+        self.score_board()
         self.create_buttons()
 
     def run(self):
@@ -55,6 +56,9 @@ class Gui:
 
     def title_label(self):
         tk.Label(self.frame, text="MineSweeper").grid(row=0, column=0, columnspan=10)
+
+    def score_board(self):
+        tk.Label(self.frame, text="Score: 0").grid(row=0, column=0, columnspan=10)
 
     def lclick_handler(self, x, y):
         return lambda event: self.tiles[x][y].click()
@@ -68,7 +72,7 @@ class Gui:
             for j in range(0, grid.width):
                 self.tiles[i].append(Tile(self.frame, i, j, grid.board[i][j]))
                 btn = self.tiles[i][j].btn
-                btn.grid(row=i, column=j)
+                btn.grid(row=i+1, column=j)
                 btn.bind('<Button-1>', self.lclick_handler(i, j))
                 btn.bind('<Button-2>', self.rclick_handler(i, j))
 
