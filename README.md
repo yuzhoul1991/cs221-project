@@ -1,9 +1,6 @@
 # cs221-project
 Scoring mine sweeper ML project
 
-For human:
-
-python game.py human
 Actions: click, flag, hint, quit
 <p>To calculate score:</p>
 <ul>
@@ -14,8 +11,16 @@ Actions: click, flag, hint, quit
 </ul>
 End: quit, or all the positions have been explored.
 
-To interact with the file:
-python game.py
+## UI-version (recommended):
+
+python simulator.py AGENT LENGTH WIDTH MINES
+
+where AGENT is {baseline, human}, and LENGTH, WIDTH, MINES define the random board you want to create.
+
+## commandline-version:
+
+python game.py human
+
 <p>Available commands:</p>
 <ul>
 <li>start x y z: start a game with x*y and z mine.</li>
