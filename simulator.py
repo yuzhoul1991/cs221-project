@@ -2,7 +2,10 @@ import Tkinter as tk
 import threading
 import tkMessageBox
 import random
+import sys
 from Grid import Grid
+from Player import Player
+from Player import BaselineAIPlayer
 
 class Tile:
     images = {}
@@ -40,9 +43,9 @@ class Tile:
         self.btn.config(image=self.img)
 
 class Gui:
-    def __init__(self, root, grid):
+    def __init__(self, root, player):
         self.tiles = []
-        self.grid = grid
+        self.player = player
         self.root = root
         self.root.title("Minesweeper")
         self.frame = tk.Frame(self.root)
@@ -67,10 +70,10 @@ class Gui:
         return lambda event: self.tiles[x][y].flag()
 
     def create_buttons(self):
-        for i in range(0, grid.length):
+        for i in range(0, self.player.length):
             self.tiles.append([])
-            for j in range(0, grid.width):
-                self.tiles[i].append(Tile(self.frame, i, j, grid.board[i][j]))
+            for j in range(0, self.player.width):
+                self.tiles[i].append(Tile(self.frame, i, j, self.player.grid.board[i][j]))
                 btn = self.tiles[i][j].btn
                 btn.grid(row=i+1, column=j)
                 btn.bind('<Button-1>', self.lclick_handler(i, j))
@@ -91,12 +94,23 @@ class Simulator(threading.Thread):
                 btn.focus_force()
                 btn.event_generate("<Button-1>")
 
+def main():
+    if len(sys.argv) < 5:
+        print "Sample usage:"
+        print "python simulator.py AGENT LENGTH WIDTH MINES"
+        print "Choice of AGENT: {human, baseline}"
+        print "For example:"
+        print "python simulator.py human 3 4 5"
+        print "will create a 3 * 4 board with 5 mines, with human player."
+        return
+    if sys.argv[1] == "human":
+        player = Player(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
+        root = tk.Tk()
+        Tile.import_images()
+        gui = Gui(root, player)
+        sim = Simulator(gui)
+        #sim.start()
+        gui.run()
 
 if __name__ == '__main__':
-    grid = Grid(10, 10, 10)
-    root = tk.Tk()
-    Tile.import_images()
-    gui = Gui(root, grid)
-    sim = Simulator(gui)
-    #sim.start()
-    gui.run()
+    main()
