@@ -1,8 +1,8 @@
 """A command line version of Minesweeper"""
 import random
 import sys
-from AIPlayer import Player
-from AIPlayer import BaselineAIPlayer
+from Player import Player
+from Player import BaselineAIPlayer
 from Grid import Grid
 
 def main():
