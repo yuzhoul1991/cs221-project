@@ -29,20 +29,31 @@ class Tile:
         self.img = self.images['tile_plain']
         self.btn = tk.Button(frame, image=self.img)
 
+    def update_image(self):
+        self.btn.config(image=self.img)
+
     def click(self):
-        print "left click"
+        print "click {} {}".format(self.x, self.y)
         if self.is_mine:
             self.img = self.images['tile_mine']
         else:
             self.img = self.images['tile_numbers'][self.num]
-        self.btn.config(image=self.img)
+        self.update_image()
 
     def flag(self):
-        print "right click"
+        print "flag {} {}".format(self.x, self.y)
         self.img = self.images['tile_flag']
-        self.btn.config(image=self.img)
+        self.update_image()
+
+    def reveal(self):
+        if not self.is_mine:
+            raise RuntimeError, "Trying to reveal non mine tile, something is wrong"
+        print "hint reveal {} {}".format(self.x, self.y)
+        self.img = self.images['tile_mine']
+        self.update_image()
 
 class Gui:
+    hint_btn_text = "Take Hint: (Remaining: {})"
     def __init__(self, root, player):
         self.tiles = []
         self.player = player
@@ -50,24 +61,46 @@ class Gui:
         self.root.title("Minesweeper")
         self.frame = tk.Frame(self.root)
         self.frame.pack()
-        #self.title_label()
-        self.score_board()
+        self.create_score_board()
+        self.create_hint_btn()
         self.create_buttons()
 
     def run(self):
         self.root.mainloop()
 
-    def title_label(self):
-        tk.Label(self.frame, text="MineSweeper").grid(row=0, column=0, columnspan=10)
+    def create_hint_btn(self):
+        self.hint_btn = tk.Button(self.frame, text=self.hint_btn_text.format(self.player.grid.num_mines))
+        self.hint_btn.grid(row=1, column=0, columnspan=10)
+        def hint_handler(event):
+            (x, y), _ = self.player.hint()
+            self.update_hint_remaining()
+            self.tiles[x][y].reveal()
+            self.update_score_board()
+        self.hint_btn.bind('<Button-1>', hint_handler)
 
-    def score_board(self):
-        tk.Label(self.frame, text="Score: 0").grid(row=0, column=0, columnspan=10)
+    def update_hint_remaining(self):
+        self.hint_btn.config(text=self.hint_btn_text.format(self.player.grid.num_mines - len(self.player.currentMines)))
+
+    def create_score_board(self):
+        self.score_board = tk.Label(self.frame, text="Score: 0")
+        self.score_board.grid(row=0, column=0, columnspan=10)
+
+    def update_score_board(self):
+        self.score_board.config(text="Score: {}".format(self.player.score))
 
     def lclick_handler(self, x, y):
-        return lambda event: self.tiles[x][y].click()
+        def do_lclick(event):
+            self.tiles[x][y].click()
+            self.player.click(x, y)
+            self.update_score_board()
+        return do_lclick
 
     def rclick_handler(self, x, y):
-        return lambda event: self.tiles[x][y].flag()
+        def do_rclick(event):
+            self.tiles[x][y].flag()
+            self.player.flag(x, y)
+            self.update_score_board()
+        return do_rclick
 
     def create_buttons(self):
         for i in range(0, self.player.length):
@@ -75,7 +108,7 @@ class Gui:
             for j in range(0, self.player.width):
                 self.tiles[i].append(Tile(self.frame, i, j, self.player.grid.board[i][j]))
                 btn = self.tiles[i][j].btn
-                btn.grid(row=i+1, column=j)
+                btn.grid(row=i+2, column=j)
                 btn.bind('<Button-1>', self.lclick_handler(i, j))
                 btn.bind('<Button-2>', self.rclick_handler(i, j))
 
