@@ -32,17 +32,20 @@ class Tile:
     def update_image(self):
         self.btn.config(image=self.img)
 
+    def get_image(self, is_flag=False):
+        if self.is_mine:
+            return self.images['tile_flag'] if is_flag else self.images['tile_mine']
+        else:
+            return self.images['tile_numbers'][self.num]
+
     def click(self):
         print "click {} {}".format(self.x, self.y)
-        if self.is_mine:
-            self.img = self.images['tile_mine']
-        else:
-            self.img = self.images['tile_numbers'][self.num]
+        self.img = self.get_image()
         self.update_image()
 
     def flag(self):
         print "flag {} {}".format(self.x, self.y)
-        self.img = self.images['tile_flag']
+        self.img = self.get_image(is_flag=True)
         self.update_image()
 
     def reveal(self):
@@ -76,6 +79,8 @@ class Gui:
             self.update_hint_remaining()
             self.tiles[x][y].reveal()
             self.update_score_board()
+            if self.player.grid.num_mines - len(self.player.currentMines) == 0:
+                self.hint_btn.unbind('<Button-1>')
         self.hint_btn.bind('<Button-1>', hint_handler)
 
     def update_hint_remaining(self):
@@ -93,6 +98,8 @@ class Gui:
             self.tiles[x][y].click()
             self.player.click(x, y)
             self.update_score_board()
+            self.tiles[x][y].btn.unbind('<Button-1>')
+            self.tiles[x][y].btn.unbind('<Button-2>')
         return do_lclick
 
     def rclick_handler(self, x, y):
@@ -100,6 +107,8 @@ class Gui:
             self.tiles[x][y].flag()
             self.player.flag(x, y)
             self.update_score_board()
+            self.tiles[x][y].btn.unbind('<Button-1>')
+            self.tiles[x][y].btn.unbind('<Button-2>')
         return do_rclick
 
     def create_buttons(self):
