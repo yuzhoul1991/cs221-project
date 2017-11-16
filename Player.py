@@ -144,7 +144,7 @@ class BaselineAIPlayer(AIPlayer):
         randomCell = (random.choice(range(self.length)), random.choice(range(self.width)))
         while self.currentPlayerBoard[randomCell[0]][randomCell[1]] != "x":
             randomCell = (random.choice(range(self.length)), random.choice(range(self.width)))
-        chance_flag = float(numRemainingMines) / (numRemainingMines + numRemainingCells)
+        chance_flag = float(numRemainingMines) / numRemainingCells
         if random.random() < chance_flag:
             return "flag", randomCell[0], randomCell[1]
         return "click", randomCell[0], randomCell[1]
