@@ -11,13 +11,25 @@ Actions: click, flag, hint, quit
 </ul>
 End: quit, or all the positions have been explored.
 
-## UI-version (recommended):
+## UI-version (for human interaction):
 
-python simulator.py AGENT LENGTH WIDTH MINES
+python simulator.py human LENGTH WIDTH MINES
 
-where AGENT is {baseline, human}, and LENGTH, WIDTH, MINES define the random board you want to create.
+where LENGTH, WIDTH, MINES define the random board you want to create.
 
-## commandline-version:
+## commandline-version (for running various models and compare):
+
+python game.py AGENT LENGTH WIDTH MINES NUM_TIMES=1
+
+where AGENT is {baseline, qlearning}, and NUM_TIMES is default to 1 if not specified.
+
+python game.py compare
+
+This will run a thorough analysis on qlearning score v.s. baseline score (average score of 1000 games). It will be run on board size [3, 6, 9, 12, 16] * [3, 6, 9, 12, 16] with mine density [0.1, 0.25, 0.5, 0.7]. Since it runs 1000 games for 100 times, expect this to finish in ~1-2hrs. We use 10000 episodes to train each qlearning.
+
+This functionality will be useful when we generate the data for the report.
+
+## commandline-version (for human interaction, not recommended):
 
 python game.py human
 
