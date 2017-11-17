@@ -32,11 +32,13 @@ class QLearningAlgorithm:
             return random.choice(self.actions(state))
         else:
             l = [(self.getQ(state, action), action) for action in self.actions(state)]
+            if state.num_flags_remaining > 0:
+                l = [i for i in l if i[1][0] != "flag"]
             max_weight = max(l)[0]
             # choose random actions based on density of remaining mines.
             click_choices = [i for i in l if i[0] == max_weight and i[1][0] == "click"]
             flag_choices = [i for i in l if i[0] == max_weight and i[1][0] == "flag"]
-            if len(click_choices) == 0 and state.num_flags_remaining > 0:
+            if len(click_choices) == 0:
                 return random.choice(flag_choices)[1]
             elif len(flag_choices) == 0:
                 return random.choice(click_choices)[1]
@@ -140,13 +142,11 @@ class MiningMDP:
         return 0.9
 
 def simulate(mdp, rl, numTrials):
-    totalRewards = []  # The rewards we get on each trial
     for trial in range(numTrials):
-        if trial % 1000 == 0:
+        if trial % 100 == 0:
             print trial
         state = mdp.startState()
         totalDiscount = 1
-        totalReward = 0
         while True:
             action = rl.getAction(state)
             newState, reward = mdp.succAndProbReward(state, action)
@@ -155,11 +155,8 @@ def simulate(mdp, rl, numTrials):
                 break
             # Choose a random transition
             rl.incorporateFeedback(state, action, reward, newState)
-            totalReward += totalDiscount * reward
             totalDiscount *= mdp.discount()
             state = newState
-        totalRewards.append(totalReward)
-    return totalRewards
 
 
 class RLPlayer(AIPlayer):
