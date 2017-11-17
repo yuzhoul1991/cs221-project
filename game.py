@@ -70,13 +70,13 @@ def main():
         score = player.run(num_run, episodes)
         print "Final score is: " + str(score)
     elif sys.argv[1] == "compare":
-        # Compare baseline and QLearning, on boards i * i for i in [4, 7, 10, 13, 16], with mine density = [0.1, 0.3, 0.5, 0.7, 0.9].
+        # Compare baseline and QLearning, on boards 4 * 4 and 10 * 10, with mine density = [0.1, 0.2, 0.4].
         # QLearning will train on each board 10000 times.
         num_run = 1000
         episodes = 10000
-        for i in range(4, 17, 3):
-            for mine_density in range(1, 10, 2): # 0.1 to 0.9
-                num_mines = i * i * mine_density / 10
+        for i in [4, 10]:
+            for mine_density in [0.1, 0.2, 0.4]:
+                num_mines = int(i * i * mine_density)
                 # base line
                 baseline_score = 0
                 for _ in range(num_run):
