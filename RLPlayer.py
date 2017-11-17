@@ -87,53 +87,31 @@ def ImprovedFeatureExtractor(state, action):
     list_surrounding_tiles.remove((action[1], action[2]))
     max_neighbor_tile, num_max_neighbor_tile = -1, 0
     num_surrounding_mines, num_unknown_mines = 0, 0
+    target_x, target_y = action[1], action[2]
     for x, y in list_surrounding_tiles:
         if state.currentPlayerBoard[x][y] != "x" and state.currentPlayerBoard[x][y] >= 0:
             if state.currentPlayerBoard[x][y] > max_neighbor_tile:
                 max_neighbor_tile, num_max_neighbor_tile = state.currentPlayerBoard[x][y], 1
             elif state.currentPlayerBoard[x][y] == max_neighbor_tile:
                 num_max_neighbor_tile += 1
-            feature_key = "Surrounding number: " + str(state.currentPlayerBoard[x][y]) + ";action:" + action[0]
+            feature_key = "Surrounding number(" + str(target_x) + "," + str(target_y) + "): " + str(state.currentPlayerBoard[x][y]) + ";action:" + action[0]
             feature_value_list[feature_key] += 1
         elif state.currentPlayerBoard[x][y] == "x":
             num_unknown_mines += 1
         elif state.currentPlayerBoard[x][y] != "x" and state.currentPlayerBoard[x][y] < 0:
             num_surrounding_mines += 1
     if num_max_neighbor_tile > 0:
-        feature_key = "Maximum Surrounding Neighbor: " + str(max_neighbor_tile) + ";action:" + action[0]
+        feature_key = "Maximum Surrounding Neighbor(" + str(target_x) + "," + str(target_y) + "): " + str(max_neighbor_tile) + ";action:" + action[0]
         feature_value_list[feature_key] = 1
     # feature_key = "Num Unknown tiles: "
     # feature_value_list[feature_key] = float(num_unknown_mines) / (state.num_moves + 1)
-    feature_key = "Num surrounding mines: " + str(num_surrounding_mines) + ";action:" + action[0]
+    feature_key = "Num surrounding mines(" + str(target_x) + "," + str(target_y) + "): " + str(num_surrounding_mines) + ";action:" + action[0]
     feature_value_list[feature_key] = 1
     # More features to come!
     # Indicator of at corner
-    feature_key = "At top left corder;action:" + action[0]
-    if action[1] == 0 and action[2] == 0:
+    feature_key = "At border;action(" + str(target_x) + "," + str(target_y) + "): " + action[0]
+    if action[1] == 0 or action[1] == state.width-1 or action[2] == 0 or action[2] == state.length-1:
         feature_value_list[feature_key] = 1
-    feature_key = "At top right corder;action:" + action[0]
-    if action[1] == 0 and action[2] == state.length-1:
-        feature_value_list[feature_key] = 1
-    feature_key = "At bottom left corder;action:" + action[0]
-    if action[1] == state.width-1 and action[2] == 0:
-        feature_value_list[feature_key] = 1
-    feature_key = "At bottom right corder;action:" + action[0]
-    if action[1] == state.width-1 and action[2] == state.length-1:
-        feature_value_list[feature_key] = 1
-
-    feature_key = "At top border;action:" + action[0]
-    if action[2] == 0:
-        feature_value_list[feature_key] = 1
-    feature_key = "At bottom border;action:" + action[0]
-    if action[2] == state.length-1:
-        feature_value_list[feature_key] = 1
-    feature_key = "At left border;action:" + action[0]
-    if action[1] == 0:
-        feature_value_list[feature_key] = 1
-    feature_key = "At right border;action:" + action[0]
-    if action[1] == state.width-1:
-        feature_value_list[feature_key] = 1
-
 
     return feature_value_list.items()
 
@@ -216,17 +194,20 @@ class RLPlayer(AIPlayer):
         # Start num_times game.
         rl.explorationProb = 0
         score = 0.0
+        printed_once = False
         for _ in range(num_times):
             # A new game
             player = AIPlayer(self.length, self.width, self.num_mines)
             # print "NEW GAME"
             while not player.gameEnds():
                 a = rl.getAction(player)
-                # print a
+                if not printed_once:
+                    print a
                 if a[0] == "quit":
                     break
                 player.move(a[0], a[1], a[2])
             score += player.score
+            printed_once = True
         return score / num_times
 
 
