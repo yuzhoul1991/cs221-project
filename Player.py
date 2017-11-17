@@ -12,6 +12,7 @@ class Player:
         self.currentMines = []
         self.num_moves = 0
         self.score = 0
+        self.num_flags_remaining = num_mines # Maximum number of flag option we can call
 
     def setBoard(self, board):
         self.grid.setBoard(board)
@@ -32,8 +33,7 @@ class Player:
     def reward(self, x, y, reward_for_mine, reward_for_normal):
         # Already explored, so we should return a low reward to prevent clicking again.
         if str(self.currentPlayerBoard[x][y]) != "x":
-            self.score -= 50
-            return -50
+            return -float("inf")
         self.currentPlayerBoard[x][y] = self.grid.clickOn(x, y)
         self.num_moves += 1
         if self.currentPlayerBoard[x][y] == -1:
@@ -49,13 +49,16 @@ class Player:
 
     # Returns value: reward in this action.
     def flag(self, x, y):
-        return self.reward(x, y, self.length * self.width - self.num_moves + 30, -5)
+        if self.num_flags_remaining == 0:
+            return -float("inf")
+        self.num_flags_remaining -= 1
+        return self.reward(x, y, 30, -5)
 
     # Returns value: location of a random mine, reward in this action (-10)
     def hint(self):
         # No more mines to hint, we should return a very low reward.
         if len(self.currentMines) == self.num_mines:
-            return self.currentMines[0], -50
+            return None, -float("inf")
         x, y = self.grid.randomMine(self.currentMines)
         self.currentPlayerBoard[x][y] = -1
         self.currentMines.append((x, y))
@@ -130,6 +133,9 @@ class BaselineAIPlayer(AIPlayer):
                             self.known_tiles_to_explore.append(("flag", x, y))
 
         # If we know some tiles for sure, we will return that action and remove it from known tiles.
+        if self.num_flags_remaining == 0:
+            self.known_tiles_to_explore = [a for a in self.known_tiles_to_explore if a[0] != "flag"]
+
         if len(self.known_tiles_to_explore) != 0:
             result = self.known_tiles_to_explore[0]
             self.known_tiles_to_explore = self.known_tiles_to_explore[1:]
@@ -145,6 +151,6 @@ class BaselineAIPlayer(AIPlayer):
         while self.currentPlayerBoard[randomCell[0]][randomCell[1]] != "x":
             randomCell = (random.choice(range(self.length)), random.choice(range(self.width)))
         chance_flag = float(numRemainingMines) / numRemainingCells
-        if random.random() < chance_flag:
+        if random.random() < chance_flag and self.num_flags_remaining > 0:
             return "flag", randomCell[0], randomCell[1]
         return "click", randomCell[0], randomCell[1]
