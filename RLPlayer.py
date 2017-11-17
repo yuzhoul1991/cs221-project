@@ -92,6 +92,12 @@ def ImprovedFeatureExtractor(state, action):
     max_neighbor_tile, num_max_neighbor_tile = -1, 0
     num_surrounding_mines, num_unknown_mines = 0, 0
     target_x, target_y = action[1], action[2]
+    surrounding_unknown_num = 0
+    for x, y in list_surrounding_tiles:
+        if state.currentPlayerBoard[x][y] == "x":
+            surrounding_unknown_num += 1
+    feature_key = "Surrounding unknown: " + str(surrounding_unknown_num) + ";action:" + action[0]
+    feature_value_list[feature_key] += 1
     for x, y in list_surrounding_tiles:
         if state.currentPlayerBoard[x][y] != "x" and state.currentPlayerBoard[x][y] >= 0:
             if state.currentPlayerBoard[x][y] > max_neighbor_tile:
