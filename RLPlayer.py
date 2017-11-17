@@ -84,6 +84,7 @@ def ImprovedFeatureExtractor(state, action):
     # 2nd feature: Take a look around the neighbors of the action cell.
     # record 1. distribution of their numbers; 2. Number of unknown tiles; 3. Maximum number.
     list_surrounding_tiles = [(x1, y1) for x1 in range(action[1] - 1, action[1] + 2) if x1 >= 0 and x1 < state.length for y1 in range(action[2] - 1, action[2] + 2) if y1 >= 0 and y1 < state.width]
+    list_surrounding_tiles.remove((action[1], action[2]))
     max_neighbor_tile, num_max_neighbor_tile = -1, 0
     num_surrounding_mines, num_unknown_mines = 0, 0
     for x, y in list_surrounding_tiles:
@@ -106,6 +107,34 @@ def ImprovedFeatureExtractor(state, action):
     feature_key = "Num surrounding mines: " + str(num_surrounding_mines) + ";action:" + action[0]
     feature_value_list[feature_key] = 1
     # More features to come!
+    # Indicator of at corner
+    feature_key = "At top left corder;action:" + action[0]
+    if action[1] == 0 and action[2] == 0:
+        feature_value_list[feature_key] = 1
+    feature_key = "At top right corder;action:" + action[0]
+    if action[1] == 0 and action[2] == state.length-1:
+        feature_value_list[feature_key] = 1
+    feature_key = "At bottom left corder;action:" + action[0]
+    if action[1] == state.width-1 and action[2] == 0:
+        feature_value_list[feature_key] = 1
+    feature_key = "At bottom right corder;action:" + action[0]
+    if action[1] == state.width-1 and action[2] == state.length-1:
+        feature_value_list[feature_key] = 1
+
+    feature_key = "At top border;action:" + action[0]
+    if action[2] == 0:
+        feature_value_list[feature_key] = 1
+    feature_key = "At bottom border;action:" + action[0]
+    if action[2] == state.length-1:
+        feature_value_list[feature_key] = 1
+    feature_key = "At left border;action:" + action[0]
+    if action[1] == 0:
+        feature_value_list[feature_key] = 1
+    feature_key = "At right border;action:" + action[0]
+    if action[1] == state.width-1:
+        feature_value_list[feature_key] = 1
+
+
     return feature_value_list.items()
 
 # State is the current player.
