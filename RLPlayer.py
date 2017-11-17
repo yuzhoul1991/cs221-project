@@ -54,7 +54,7 @@ class QLearningAlgorithm:
 
     # Call this function to get the step size to update the weights.
     def getStepSize(self):
-        return 1.0 / math.sqrt(self.numIters)
+        return 0.001
 
     # We will call this function with (s, a, r, s'), which you should use to update |weights|.
     # Note that if s is a terminal state, then s' will be None.  Remember to check for this.
@@ -161,7 +161,6 @@ def simulate(mdp, rl, numTrials):
         if trial % 100 == 0:
             print trial
         state = mdp.startState()
-        totalDiscount = 1
         while True:
             action = rl.getAction(state)
             newState, reward = mdp.succAndProbReward(state, action)
@@ -170,7 +169,6 @@ def simulate(mdp, rl, numTrials):
                 break
             # Choose a random transition
             rl.incorporateFeedback(state, action, reward, newState)
-            totalDiscount *= mdp.discount()
             state = newState
 
 
