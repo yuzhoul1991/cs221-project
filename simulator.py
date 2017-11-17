@@ -1,3 +1,6 @@
+from __future__ import print_function
+import os
+import datetime as dt
 import Tkinter as tk
 import threading
 import tkMessageBox
@@ -39,21 +42,35 @@ class Tile:
             return self.images['tile_numbers'][self.num]
 
     def click(self):
-        print "click {} {}".format(self.x, self.y)
         self.img = self.get_image()
         self.update_image()
 
     def flag(self):
-        print "flag {} {}".format(self.x, self.y)
         self.img = self.get_image(is_flag=True)
         self.update_image()
 
     def reveal(self):
         if not self.is_mine:
             raise RuntimeError, "Trying to reveal non mine tile, something is wrong"
-        print "hint reveal {} {}".format(self.x, self.y)
         self.img = self.images['tile_mine']
         self.update_image()
+
+class Logger:
+    def __init__(self, file=None):
+        self.file = file
+        self.messages = []
+        if not self.file:
+            file_name = "{}.log".format(dt.datetime.now().strftime("%Y%d%m_%H%M%S"))
+            self.file = os.path.join(os.getcwd(), "human_player_log", file_name)
+
+    def log(self, msg):
+        print(msg)
+        self.messages.append(msg)
+
+    def write(self):
+        with open(self.file, 'w') as fh:
+            print(*self.messages, sep="\n", file=fh)
+
 
 class Gui:
     hint_btn_text = "Take Hint: (Remaining: {})"
@@ -65,23 +82,30 @@ class Gui:
         self.frame = tk.Frame(self.root)
         self.frame.pack()
         self.create_score_board()
-        self.create_hint_btn()
         self.create_buttons()
+        self.create_tiles()
+        self.logger = Logger()
 
     def run(self):
         self.root.mainloop()
 
-    def create_hint_btn(self):
+    def create_buttons(self):
         self.hint_btn = tk.Button(self.frame, text=self.hint_btn_text.format(self.player.grid.num_mines))
-        self.hint_btn.grid(row=1, column=0, columnspan=10)
+        self.hint_btn.grid(row=1, columnspan=10)
+        self.save_btn = tk.Button(self.frame, text="SaveLog")
+        self.save_btn.grid(row=2, columnspan=10)
         def hint_handler(event):
             (x, y), _ = self.player.hint()
             self.update_hint_remaining()
             self.tiles[x][y].reveal()
             self.update_score_board()
+            self.logger.log("hint reveal {} {} | score {}".format(x, y, self.current_score()))
             if self.player.grid.num_mines - len(self.player.currentMines) == 0:
                 self.hint_btn.unbind('<Button-1>')
         self.hint_btn.bind('<Button-1>', hint_handler)
+        def save_handler(event):
+            self.logger.write()
+        self.save_btn.bind('<Button-1>', save_handler)
 
     def update_hint_remaining(self):
         self.hint_btn.config(text=self.hint_btn_text.format(self.player.grid.num_mines - len(self.player.currentMines)))
@@ -91,13 +115,17 @@ class Gui:
         self.score_board.grid(row=0, column=0, columnspan=10)
 
     def update_score_board(self):
-        self.score_board.config(text="Score: {}".format(self.player.score))
+        self.score_board.config(text="Score: {}".format(self.current_score()))
+
+    def current_score(self):
+        return self.player.score
 
     def lclick_handler(self, x, y):
         def do_lclick(event):
             self.tiles[x][y].click()
             self.player.click(x, y)
             self.update_score_board()
+            self.logger.log("click {} {} | score {}".format(x, y, self.current_score()))
             self.tiles[x][y].btn.unbind('<Button-1>')
             self.tiles[x][y].btn.unbind('<Button-2>')
         return do_lclick
@@ -107,17 +135,18 @@ class Gui:
             self.tiles[x][y].flag()
             self.player.flag(x, y)
             self.update_score_board()
+            self.logger.log("flag {} {} | score {}".format(x, y, self.current_score()))
             self.tiles[x][y].btn.unbind('<Button-1>')
             self.tiles[x][y].btn.unbind('<Button-2>')
         return do_rclick
 
-    def create_buttons(self):
+    def create_tiles(self):
         for i in range(0, self.player.length):
             self.tiles.append([])
             for j in range(0, self.player.width):
                 self.tiles[i].append(Tile(self.frame, i, j, self.player.grid.board[i][j]))
                 btn = self.tiles[i][j].btn
-                btn.grid(row=i+2, column=j)
+                btn.grid(row=i+3, column=j)
                 btn.bind('<Button-1>', self.lclick_handler(i, j))
                 btn.bind('<Button-2>', self.rclick_handler(i, j))
 
@@ -138,12 +167,15 @@ class Simulator(threading.Thread):
 
 def main():
     if len(sys.argv) < 5:
-        print "Sample usage:"
-        print "python simulator.py AGENT LENGTH WIDTH MINES"
-        print "Choice of AGENT: {human, baseline}"
-        print "For example:"
-        print "python simulator.py human 3 4 5"
-        print "will create a 3 * 4 board with 5 mines, with human player."
+        help_msg = """
+        Sample usage:
+        python simulator.py AGENT LENGTH WIDTH MINES
+        Choice of AGENT: {human, baseline}
+        For example:
+        python simulator.py human 3 4 5
+        will create a 3 * 4 board with 5 mines, with human player.
+        """
+        print(help_msg)
         return
     if sys.argv[1] == "human":
         player = Player(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
