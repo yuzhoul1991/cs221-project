@@ -31,7 +31,7 @@ class Player:
 
     # general function to calculate reward on x, y
     def reward(self, x, y, reward_for_mine, reward_for_normal):
-        # Already explored, so we should return a low reward to prevent clicking again.
+        # Already explored.
         if str(self.currentPlayerBoard[x][y]) != "x":
             return -float("inf")
         self.currentPlayerBoard[x][y] = self.grid.clickOn(x, y)
@@ -45,18 +45,19 @@ class Player:
 
     # Returns value: reward in this action.
     def click(self, x, y):
-        return self.reward(x, y, -20, 2)
+        return self.reward(x, y, -10, 2)
 
     # Returns value: reward in this action.
     def flag(self, x, y):
+        # No more flag option available.
         if self.num_flags_remaining == 0:
             return -float("inf")
         self.num_flags_remaining -= 1
-        return self.reward(x, y, 10, -5)
+        return self.reward(x, y, 15, -10)
 
     # Returns value: location of a random mine, reward in this action (-10)
     def hint(self):
-        # No more mines to hint, we should return a very low reward.
+        # No more mines to hint.
         if len(self.currentMines) == self.num_mines:
             return None, -float("inf")
         x, y = self.grid.randomMine(self.currentMines)
