@@ -90,14 +90,8 @@ def ImprovedFeatureExtractor(state, action):
     list_surrounding_tiles = [(x1, y1) for x1 in range(action[1] - 1, action[1] + 2) if x1 >= 0 and x1 < state.length for y1 in range(action[2] - 1, action[2] + 2) if y1 >= 0 and y1 < state.width]
     list_surrounding_tiles.remove((action[1], action[2]))
     max_neighbor_tile, num_max_neighbor_tile = -1, 0
-    num_surrounding_mines, num_unknown_mines = 0, 0
+    num_surrounding_mines, num_unknown_tile = 0, 0
     target_x, target_y = action[1], action[2]
-    surrounding_unknown_num = 0
-    for x, y in list_surrounding_tiles:
-        if state.currentPlayerBoard[x][y] == "x":
-            surrounding_unknown_num += 1
-    feature_key = "Surrounding unknown: " + str(surrounding_unknown_num) + ";action:" + action[0]
-    feature_value_list[feature_key] += 1
     for x, y in list_surrounding_tiles:
         if state.currentPlayerBoard[x][y] != "x" and state.currentPlayerBoard[x][y] >= 0:
             if state.currentPlayerBoard[x][y] > max_neighbor_tile:
@@ -107,16 +101,16 @@ def ImprovedFeatureExtractor(state, action):
             feature_key = "Surrounding number(" + str(target_x) + "," + str(target_y) + "): " + str(state.currentPlayerBoard[x][y]) + ";action:" + action[0]
             feature_value_list[feature_key] += 1
         elif state.currentPlayerBoard[x][y] == "x":
-            num_unknown_mines += 1
+            num_unknown_tile += 1
         elif state.currentPlayerBoard[x][y] != "x" and state.currentPlayerBoard[x][y] < 0:
             num_surrounding_mines += 1
     if num_max_neighbor_tile > 0:
         feature_key = "Maximum Surrounding Neighbor(" + str(target_x) + "," + str(target_y) + "): " + str(max_neighbor_tile) + ";action:" + action[0]
         feature_value_list[feature_key] = 1
-    # feature_key = "Num Unknown tiles: "
-    # feature_value_list[feature_key] = float(num_unknown_mines) / (state.num_moves + 1)
 
     feature_key = "Num surrounding mines(" + str(target_x) + "," + str(target_y) + "): " + str(num_surrounding_mines) + ";action:" + action[0]
+    feature_value_list[feature_key] = 1
+    feature_key = "Num surrounding unknown: " + str(num_unknown_tile) + ";action:" + action[0]
     feature_value_list[feature_key] = 1
     # More features to come!
     # Indicator of at corner
