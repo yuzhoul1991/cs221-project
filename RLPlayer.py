@@ -26,13 +26,17 @@ class QLearningAlgorithm:
     # This algorithm will produce an action given a state.
     # Here we use the epsilon-greedy algorithm: with probability
     # |explorationProb|, take a random action.
-    def getAction(self, state):
+    def getAction(self, state, verbose=0):
         self.numIters += 1
         if random.random() < self.explorationProb:
             return random.choice(self.actions(state))
         else:
             l = [(self.getQ(state, action), action) for action in self.actions(state)]
-            if state.num_flags_remaining > 0:
+            if verbose:
+                l = sorted(l, reverse=True)
+                for i in range(min(len(l), 5)):
+                    print l[i][1], l[i][0]
+            if state.num_flags_remaining == 0:
                 l = [i for i in l if i[1][0] != "flag"]
             max_weight = max(l)[0]
             # choose random actions based on density of remaining mines.
@@ -44,7 +48,7 @@ class QLearningAlgorithm:
                 return random.choice(click_choices)[1]
             numRemainingMines = state.num_mines - len(state.currentMines)
             numRemainingCells = state.length * state.width - state.num_moves
-            if state.num_flags_remaining > 0 and random.random() < float(numRemainingMines) / numRemainingCells:
+            if random.random() < float(numRemainingMines) / numRemainingCells:
                 return random.choice(flag_choices)[1]
             return random.choice(click_choices)[1]
 
@@ -104,37 +108,17 @@ def ImprovedFeatureExtractor(state, action):
         feature_value_list[feature_key] = 1
     # feature_key = "Num Unknown tiles: "
     # feature_value_list[feature_key] = float(num_unknown_mines) / (state.num_moves + 1)
-    feature_key = "Num surrounding mines: " + str(num_surrounding_mines) + ";action:" + action[0]
-    feature_value_list[feature_key] = 1
+    # feature_key = "Num surrounding mines: " + str(num_surrounding_mines) + ";action:" + action[0]
+    # feature_value_list[feature_key] = 1
     # More features to come!
     # Indicator of at corner
-    feature_key = "At top left corder;action:" + action[0]
-    if action[1] == 0 and action[2] == 0:
-        feature_value_list[feature_key] = 1
-    feature_key = "At top right corder;action:" + action[0]
-    if action[1] == 0 and action[2] == state.length-1:
-        feature_value_list[feature_key] = 1
-    feature_key = "At bottom left corder;action:" + action[0]
-    if action[1] == state.width-1 and action[2] == 0:
-        feature_value_list[feature_key] = 1
-    feature_key = "At bottom right corder;action:" + action[0]
-    if action[1] == state.width-1 and action[2] == state.length-1:
+    feature_key = "At corner;action:" + action[0]
+    if action[1] == 0 and action[2] == 0 or action[1] == 0 and action[2] == state.length-1 or action[1] == state.width-1 and action[2] == 0 or action[1] == state.width-1 and action[2] == state.length-1:
         feature_value_list[feature_key] = 1
 
-    feature_key = "At top border;action:" + action[0]
-    if action[2] == 0:
+    feature_key = "At border;action:" + action[0]
+    if action[2] == 0 or action[2] == state.length-1 or action[1] == 0 or action[1] == state.width-1:
         feature_value_list[feature_key] = 1
-    feature_key = "At bottom border;action:" + action[0]
-    if action[2] == state.length-1:
-        feature_value_list[feature_key] = 1
-    feature_key = "At left border;action:" + action[0]
-    if action[1] == 0:
-        feature_value_list[feature_key] = 1
-    feature_key = "At right border;action:" + action[0]
-    if action[1] == state.width-1:
-        feature_value_list[feature_key] = 1
-
-
     return feature_value_list.items()
 
 # State is the current player.
@@ -221,6 +205,7 @@ class RLPlayer(AIPlayer):
             player = AIPlayer(self.length, self.width, self.num_mines)
             # print "NEW GAME"
             while not player.gameEnds():
+                # print "NEW ACTION"
                 a = rl.getAction(player)
                 # print a
                 if a[0] == "quit":
