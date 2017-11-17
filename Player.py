@@ -45,14 +45,14 @@ class Player:
 
     # Returns value: reward in this action.
     def click(self, x, y):
-        return self.reward(x, y, -20, 1)
+        return self.reward(x, y, -20, 2)
 
     # Returns value: reward in this action.
     def flag(self, x, y):
         if self.num_flags_remaining == 0:
             return -float("inf")
         self.num_flags_remaining -= 1
-        return self.reward(x, y, 30, -5)
+        return self.reward(x, y, 10, -5)
 
     # Returns value: location of a random mine, reward in this action (-10)
     def hint(self):
