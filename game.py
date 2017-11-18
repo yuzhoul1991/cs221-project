@@ -1,4 +1,5 @@
 """A command line version of Minesweeper"""
+import os
 import random
 import sys
 from Player import Player
@@ -9,10 +10,14 @@ from Grid import Grid
 def main():
     # To be overridden
     if len(sys.argv) < 2:
-        print "You need more input params! Sample usage:"
-        print "python game.py human"
-        print "python game.py baseline 10 10 10 - to start a baseline AI with 10*10 board with 10 mines"
-        print "python game.py baseline 10 10 10 100 - to start a baseline AI with 10*10 board with 10 mines, 100 times"
+        help_msg = """
+        You need more input params! Sample usage:
+        python game.py human (command line interface)
+        python game.py gui (gui interface)
+        python game.py baseline 10 10 10 - to start a baseline AI with 10*10 board with 10 mines
+        python game.py baseline 10 10 10 100 - to start a baseline AI with 10*10 board with 10 mines, 100 times
+        """
+        print help_msg
         return
     if sys.argv[1] == "human":
         player = Player(1,1,1)
@@ -56,6 +61,10 @@ def main():
                     print "unknown argument"
             except:
                 print "invalid argument - try again"
+    elif sys.argv[1] == 'gui':
+        command = "python simulator.py human {} {} {}".format(*sys.argv[2:])
+        print command
+        os.system(command)
     elif sys.argv[1] == "baseline":
         num_run = 1 if len(sys.argv) < 6 else int(sys.argv[5])
         score = 0
@@ -74,8 +83,8 @@ def main():
         # QLearning will train on each board 10000 times.
         num_run = 1000
         episodes = 10000
-        for i in [4, 10]:
-            for mine_density in [0.1, 0.2, 0.4]:
+        for i in [5, 10]:
+            for mine_density in [0.1, 0.15, 0.2, 0.3, 0.4]:
                 num_mines = int(i * i * mine_density)
                 # base line
                 baseline_score = 0
