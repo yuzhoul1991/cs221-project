@@ -17,10 +17,10 @@ class Player:
         self.num_moves = 0
         self.score = 0
         self.num_flags_remaining = num_mines # Maximum number of flag option we can call
-        self.logger = Logger()
+        self.logger = Logger(self.length, self.width, num_mines, self.seed)
 
-    def save(self):
-        self.logger.write(self.seed, self.score)
+    def save(self, agent):
+        self.logger.write(agent, self.score)
 
     def setBoard(self, board):
         self.grid.setBoard(board)
@@ -83,7 +83,7 @@ class Player:
 
 class AIPlayer(Player):
     # Entry point to run the AI Player. To be overridden.
-    def run(self):
+    def run(self, save_log=True):
         return
 
     # Returns move, x, y, based on the current board and last move (action, position (x,y), score). To be overridden.
@@ -99,7 +99,7 @@ class AIPlayer(Player):
             return self.flag(x, y)
 
 class BaselineAIPlayer(AIPlayer):
-    def run(self):
+    def run(self, save_log=True):
         # A list of tuples (action, position), where we know for 100% which action to apply for each position. If this list is empty, we will explore randomly.
         self.known_tiles_to_explore = []
         a = self.chooseAction(None, None)
@@ -107,6 +107,8 @@ class BaselineAIPlayer(AIPlayer):
         while a[0] != "quit" and not self.gameEnds():
             score = self.move(a[0], a[1], a[2])
             a = self.chooseAction(a[1], a[2])
+        if save_log:
+            self.save('baseline')
         return self.score
 
     # @params: inputs are the position of last move.

@@ -1,6 +1,6 @@
 from __future__ import print_function
 import os
-import datetime as dt
+import yaml
 import Tkinter as tk
 import threading
 import tkMessageBox
@@ -82,12 +82,11 @@ class Gui:
             self.update_hint_remaining()
             self.tiles[x][y].reveal()
             self.update_score_board()
-            self.logger.log("hint reveal {} {} | score {}".format(x, y, self.current_score()))
             if self.player.grid.num_mines - len(self.player.currentMines) == 0:
                 self.hint_btn.unbind('<Button-1>')
         self.hint_btn.bind('<Button-1>', hint_handler)
         def save_handler(event):
-            self.logger.write()
+            self.player.save('human')
         self.save_btn.bind('<Button-1>', save_handler)
 
     def update_hint_remaining(self):
@@ -108,7 +107,6 @@ class Gui:
             self.tiles[x][y].click()
             self.player.click(x, y)
             self.update_score_board()
-            self.logger.log("click {} {} | score {}".format(x, y, self.current_score()))
             self.tiles[x][y].btn.unbind('<Button-1>')
             self.tiles[x][y].btn.unbind('<Button-2>')
         return do_lclick
@@ -118,7 +116,6 @@ class Gui:
             self.tiles[x][y].flag()
             self.player.flag(x, y)
             self.update_score_board()
-            self.logger.log("flag {} {} | score {}".format(x, y, self.current_score()))
             self.tiles[x][y].btn.unbind('<Button-1>')
             self.tiles[x][y].btn.unbind('<Button-2>')
         return do_rclick
@@ -134,26 +131,35 @@ class Gui:
                 btn.bind('<Button-2>', self.rclick_handler(i, j))
 
 class Simulator(threading.Thread):
-    def __init__(self, gui):
+    def __init__(self, gui, actions):
         threading.Thread.__init__(self)
         self.gui = gui
+        self.actions = actions
 
     def run(self):
         import time
         time.sleep(2)
-        for i in range(0, self.gui.grid.length):
-            for j in range(0, self.gui.grid.width):
-                time.sleep(0.2)
-                btn = self.gui.tiles[i][j].btn
+        for action, x, y in self.actions:
+            if action == 'click':
+                btn = self.gui.tiles[x][y].btn
                 btn.focus_force()
                 btn.event_generate("<Button-1>")
+            elif action == 'flag':
+                btn = self.gui.tiles[x][y].btn
+                btn.focus_force()
+                btn.event_generate("<Button-2>")
+            elif action == 'hint':
+                btn = self.gui.hint_btn
+                btn.focus_force()
+                btn.event_generate("<Button-1>")
+            time.sleep(0.2)
 
 def main():
-    if len(sys.argv) < 5:
+    if len(sys.argv) != 5 and len(sys.argv) != 3:
         help_msg = """
         Sample usage:
         python simulator.py AGENT LENGTH WIDTH MINES
-        Choice of AGENT: {human, baseline}
+        Choice of AGENT: {human, simulate}
         For example:
         python simulator.py human 3 4 5
         will create a 3 * 4 board with 5 mines, with human player.
@@ -165,8 +171,33 @@ def main():
         root = tk.Tk()
         Tile.import_images()
         gui = Gui(root, player)
-        sim = Simulator(gui)
-        #sim.start()
+        gui.run()
+    elif sys.argv[1] == 'simulate':
+        yml_file = sys.argv[2]
+        if not os.path.exists(yml_file):
+            prin( "File {} does not exist".format(yml_file))
+        basename = os.path.basename(yml_file)
+        agent = basename.split('-')[0]
+        with open(yml_file) as fh:
+            yml_content = yaml.load(fh)
+        game_config = yml_content['config']
+        actions = yml_content['actions']
+        print("Agent: {}, length: {}, width: {}, num_mines: {}, seed: {}".format(agent, game_config['length'], game_config['width'], game_config['num_mines'], game_config['seed']))
+        if agent == 'baseline':
+            player = BaselineAIPlayer(int(game_config['length']), int(game_config['width']), int(game_config['num_mines']), int(game_config['seed']))
+            score = player.run(save_log=False)
+            print("Final score is: " +  str(score))
+        elif agent == 'qlearning':
+            player = RLPlayer(int(game_config['length']), int(game_config['width']), int(game_config['num_mines']), int(game_config['seed']))
+        else:
+            player = Player(int(game_config['length']), int(game_config['width']), int(game_config['num_mines']), int(game_config['seed']))
+
+
+        root = tk.Tk()
+        Tile.import_images()
+        gui = Gui(root, player)
+        sim = Simulator(gui, yml_content['actions'])
+        sim.start()
         gui.run()
 
 if __name__ == '__main__':

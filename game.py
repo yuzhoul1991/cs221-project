@@ -17,7 +17,7 @@ def main():
         python game.py baseline 10 10 10 - to start a baseline AI with 10*10 board with 10 mines
         python game.py baseline 10 10 10 100 - to start a baseline AI with 10*10 board with 10 mines, 100 times
         """
-        print help_msg
+        print(help_msg)
         return
     if sys.argv[1] == "human":
         player = Player(1,1,1)
@@ -61,10 +61,12 @@ def main():
                     print "unknown argument"
             except:
                 print "invalid argument - try again"
+
     elif sys.argv[1] == 'gui':
         command = "python simulator.py human {} {} {}".format(*sys.argv[2:])
         print command
         os.system(command)
+
     elif sys.argv[1] == "baseline":
         num_run = 1 if len(sys.argv) < 6 else int(sys.argv[5])
         score = 0
@@ -72,12 +74,19 @@ def main():
             player = BaselineAIPlayer(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
             score += player.run()
         print "Final score is: " + str(float(score) / num_run)
+
     elif sys.argv[1] == "qlearning":
         num_run = 1 if len(sys.argv) < 6 else int(sys.argv[5])
         episodes = 10000 if len(sys.argv) < 7 else int(sys.argv[6])
         player = RLPlayer(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
         score = player.run(num_run, episodes)
         print "Final score is: " + str(score)
+
+    elif sys.argv[1] == 'simulate':
+        command = "python simulator.py simulate {}".format(sys.argv[2])
+        print command
+        os.system(command)
+
     elif sys.argv[1] == "compare":
         # Compare baseline and QLearning, on boards 4 * 4 and 10 * 10, with mine density = [0.1, 0.2, 0.4].
         # QLearning will train on each board 10000 times.

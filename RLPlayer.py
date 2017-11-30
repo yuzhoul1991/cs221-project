@@ -173,7 +173,7 @@ def simulate(mdp, rl, numTrials):
 
 
 class RLPlayer(AIPlayer):
-    def run(self, num_times, episodes=10000):
+    def run(self, num_times, episodes=10000, save_log=True):
         # It will first train itself.
         mdp = MiningMDP(self.length, self.width, self.num_mines)
         rl = QLearningAlgorithm(mdp.actions, mdp.discount(), ImprovedFeatureExtractor)
