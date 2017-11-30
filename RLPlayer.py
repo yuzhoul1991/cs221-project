@@ -200,21 +200,22 @@ class RLPlayer(AIPlayer):
         # Start num_times game.
         rl.explorationProb = 0
         score = 0.0
-        printed_once = False
-        for _ in range(num_times):
+        random_game_idx = random.random(0, num_times-1)
+        for idx in range(num_times):
             # A new game
             player = AIPlayer(self.length, self.width, self.num_mines)
             # print "NEW GAME"
             while not player.gameEnds():
                 # print "NEW ACTION"
                 a = rl.getAction(player)
-                if not printed_once:
+                if idx == random_game_idx:
                     print a
                 if a[0] == "quit":
                     break
                 player.move(a[0], a[1], a[2])
             score += player.score
-            printed_once = True
+            if idx == random_game_idx and save_log:
+                player.save('qlearning')
         return score / num_times
 
 
