@@ -55,22 +55,6 @@ class Tile:
         self.img = self.images['tile_mine']
         self.update_image()
 
-class Logger:
-    def __init__(self, file=None):
-        self.file = file
-        self.messages = []
-        if not self.file:
-            file_name = "{}.log".format(dt.datetime.now().strftime("%Y%d%m_%H%M%S"))
-            self.file = os.path.join(os.getcwd(), "human_player_log", file_name)
-
-    def log(self, msg):
-        print(msg)
-        self.messages.append(msg)
-
-    def write(self):
-        with open(self.file, 'w') as fh:
-            print(*self.messages, sep="\n", file=fh)
-
 
 class Gui:
     hint_btn_text = "Take Hint: (Remaining: {})"
@@ -84,7 +68,6 @@ class Gui:
         self.create_score_board()
         self.create_buttons()
         self.create_tiles()
-        self.logger = Logger()
 
     def run(self):
         self.root.mainloop()

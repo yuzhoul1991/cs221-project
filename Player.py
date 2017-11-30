@@ -1,9 +1,13 @@
 """A command line version of Minesweeper"""
 import random
 from Grid import Grid
+from logger import Logger
 
 class Player:
-    def __init__(self, length, width, num_mines):
+    def __init__(self, length, width, num_mines, seed=None):
+        # set a random seed and remember it so that games are reproduciable
+        self.seed = seed if seed else random.randint(0, 0x0ffffffff)
+        random.seed(self.seed)
         self.grid = Grid(length, width, num_mines)
         self.length = length
         self.width = width
@@ -13,6 +17,10 @@ class Player:
         self.num_moves = 0
         self.score = 0
         self.num_flags_remaining = num_mines # Maximum number of flag option we can call
+        self.logger = Logger()
+
+    def save(self):
+        self.logger.write(self.seed, self.score)
 
     def setBoard(self, board):
         self.grid.setBoard(board)
@@ -45,6 +53,7 @@ class Player:
 
     # Returns value: reward in this action.
     def click(self, x, y):
+        self.logger.log('click', x, y)
         return self.reward(x, y, -10, 2)
 
     # Returns value: reward in this action.
@@ -53,6 +62,7 @@ class Player:
         if self.num_flags_remaining == 0:
             return -float("inf")
         self.num_flags_remaining -= 1
+        self.logger.log('flag', x, y)
         return self.reward(x, y, 15, -10)
 
     # Returns value: location of a random mine, reward in this action (-10)
@@ -65,6 +75,7 @@ class Player:
         self.currentMines.append((x, y))
         self.num_moves += 1
         self.score -= 3
+        self.logger.log('hint', x, y)
         return ((x, y), -3)
 
     def gameEnds(self):
