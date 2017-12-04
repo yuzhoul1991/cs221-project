@@ -200,6 +200,8 @@ class RLPlayer(AIPlayer):
         # Start num_times game.
         rl.explorationProb = 0
         score = 0.0
+        correct_moves = 0.0
+        correct_mines = 0.0
         random_game_idx = random.randint(0, num_times-1)
         games = []
         for idx in range(num_times):
@@ -215,11 +217,13 @@ class RLPlayer(AIPlayer):
                     break
                 player.move(a[0], a[1], a[2])
             score += player.score
+            correct_moves += player.correct_moves
+            correct_mines += player.correct_mines
             games.append((player.score, player))
         best_game = max(games)[1]
         if save_log:
             best_game.save('qlearning')
-        return score / num_times
+        return score / num_times, correct_moves / num_times, correct_mines / num_times
 
 
 

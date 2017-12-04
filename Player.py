@@ -18,6 +18,10 @@ class Player:
         self.score = 0
         self.num_flags_remaining = num_mines # Maximum number of flag option we can call
         self.logger = Logger(self.length, self.width, num_mines, self.seed)
+        # Number of correct moves we have made so far - i.e. click a non-mine tile or flag a mine tile.
+        self.correct_moves = 0
+        # Number of times where we flag a mine tile.
+        self.correct_mines = 0
 
     def save(self, agent):
         self.logger.write(agent, self.score)
@@ -47,8 +51,13 @@ class Player:
         if self.currentPlayerBoard[x][y] == -1:
             self.score += reward_for_mine
             self.currentMines.append((x, y))
+            if reward_for_mine > 0:
+                self.correct_moves += 1
+                self.correct_mines += 1
             return reward_for_mine
         self.score += reward_for_normal
+        if reward_for_normal > 0:
+            self.correct_moves += 1
         return reward_for_normal
 
     # Returns value: reward in this action.
@@ -109,7 +118,7 @@ class BaselineAIPlayer(AIPlayer):
             a = self.chooseAction(a[1], a[2])
         if save_log:
             self.save('baseline')
-        return self.score
+        return self.score, self.correct_moves, self.correct_mines
 
     # @params: inputs are the position of last move.
     def chooseAction(self, last_x, last_y):
