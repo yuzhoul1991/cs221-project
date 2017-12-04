@@ -201,6 +201,7 @@ class RLPlayer(AIPlayer):
         rl.explorationProb = 0
         score = 0.0
         random_game_idx = random.randint(0, num_times-1)
+        games = []
         for idx in range(num_times):
             # A new game
             player = AIPlayer(self.length, self.width, self.num_mines)
@@ -214,8 +215,10 @@ class RLPlayer(AIPlayer):
                     break
                 player.move(a[0], a[1], a[2])
             score += player.score
-            if idx == random_game_idx and save_log:
-                player.save('qlearning')
+            games.append((player.score, player))
+        best_game = max(games)[1]
+        if save_log:
+            best_game.save('qlearning')
         return score / num_times
 
 
