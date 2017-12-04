@@ -200,7 +200,7 @@ class RLPlayer(AIPlayer):
         # Start num_times game.
         rl.explorationProb = 0
         score = 0.0
-        random_game_idx = random.random(0, num_times-1)
+        random_game_idx = random.randint(0, num_times-1)
         for idx in range(num_times):
             # A new game
             player = AIPlayer(self.length, self.width, self.num_mines)

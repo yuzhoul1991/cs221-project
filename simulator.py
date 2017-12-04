@@ -8,6 +8,7 @@ import random
 import sys
 from Grid import Grid
 from Player import Player
+from RLPlayer import RLPlayer
 from Player import BaselineAIPlayer
 
 class Tile:
