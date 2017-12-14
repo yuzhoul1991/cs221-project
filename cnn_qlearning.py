@@ -40,26 +40,35 @@ class NNPlayer(AIPlayer):
     def _initialize_parameters(self):
         tf.set_random_seed(self.seed)
         W1 = tf.get_variable("W1", [4, 4, 11, 64], initializer=tf.contrib.layers.xavier_initializer(seed=self.seed))
-        W2 = tf.get_variable("W2", [4, 4, 11, 64], initializer=tf.contrib.layers.xavier_initializer(seed=self.seed))
+        W2 = tf.get_variable("W2", [4, 4, 64, 128], initializer=tf.contrib.layers.xavier_initializer(seed=self.seed))
+        W3 = tf.get_variable("W3", [3, 3, 128, 256], initializer=tf.contrib.layers.xavier_initializer(seed=self.seed))
         parameters = {
-            #"W1" : W1,        
-            #"b1" : b1,        
-            "W2" : W2,        
-            "b2" : b2,        
+            "W1" : W1,        
+            "W2" : W2,
+            "W3" : W3,
         }
         return parameters
 
     def _forward_propagation(self, X, parameters):
-        #Z1 = tf.add(tf.matmul(parameters['W1'], X), parameters['b1'])
-        #A1 = tf.nn.relu(Z1)
-        #Z2 = tf.add(tf.matmul(parameters['W2'], A1), parameters['b2'])
-        #return Z2
-        return tf.matmul(parameters['W2'], X)
+        W1 = parameters['W1']
+        W2 = parameters['W2']
+        W3 = parameters['W3']
+
+        Z1 = tf.nn.conv2d(X, W1, strides=[1,1,1,1], padding='SAME')
+        A1 = tf.nn.relu(Z1)
+        P1 = tf.nn.max_pool(A1, ksize=[1,4,4,1], strides=[1,4,4,1], padding='SAME')
+        Z2 = ff.nn.conv2d(P1, W2, strides=[1,1,1,1], padding='SAME')
+        A2 = tf.nn.relu(Z2)
+        P2 = tf.nn.max_pool(A2, ksize=[1,4,4,1], strides=[1,4,4,1], padding='SAME')
+        Z3 = ff.nn.conv2d(P2, W3, strides=[1,1,1,1], padding='SAME')
+        A3 = tf.nn.relu(Z3)
+        P3 = tf.nn.max_pool(A3, ksize=[1,3,3,1], strides=[1,3,3,1], padding='SAME')
+        Z4 = tf.contrib.layers.fully_connected(P3, 2*self.width*self.height, activation_fn=None)
+
+        return Z4
 
     def _compute_cost(self, Z, Y):
-        return tf.reduce_mean(tf.square(Y - Z))
-        #logits = tf.transpose(Z)
-        #return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=tf.transpose(Y)))
+        return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=Z, labels=Y))
 
     def getActionFromNNOutput(self, mdp, state, qvalues):
         legalActions = mdp.actions(state)
