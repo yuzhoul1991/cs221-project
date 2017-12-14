@@ -5,6 +5,7 @@ import sys
 from Player import Player
 from Player import BaselineAIPlayer
 from RLPlayer import RLPlayer
+from csp import CspAIPlayer
 from Grid import Grid
 
 def main():
@@ -91,6 +92,22 @@ def main():
         print "Average correct moves is: " + str(correct_moves)
         print "Average correct mines is: " + str(correct_mines)
 
+    elif sys.argv[1] == "csp":
+        num_run = 1 if len(sys.argv) < 6 else int(sys.argv[5])
+        score = 0.0
+        correct_moves = 0.0
+        correct_mines = 0.0
+        for _ in range(num_run):
+            print _
+            player = CspAIPlayer(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
+            current_score, current_correct_moves, current_correct_mines = player.run()
+            score += current_score
+            correct_moves += current_correct_moves
+            correct_mines += current_correct_mines
+        print "Final score is: " + str(score / num_run)
+        print "Average correct moves is: " + str(correct_moves / num_run)
+        print "Average correct mines is: " + str(correct_mines / num_run)
+
     elif sys.argv[1] == 'simulate':
         command = "python simulator.py simulate {}".format(sys.argv[2])
         print command
@@ -110,7 +127,7 @@ def main():
                 baseline_correct_mines = 0.0
                 for _ in range(num_run):
                     player = BaselineAIPlayer(i, i, num_mines)
-                    current_score, current_correct_moves, current_correct_mines = player.run()
+                    current_score, current_correct_moves, current_correct_mines = player.run(False)
                     baseline_score += current_score
                     baseline_correct_moves += current_correct_moves
                     baseline_correct_mines += current_correct_mines
@@ -119,11 +136,11 @@ def main():
                 baseline_correct_moves = baseline_correct_moves / num_run
                 # Q learning.
                 player = RLPlayer(i, i, num_mines)
-                qlearning_score, qlearning_correct_moves, qlearning_correct_mines = player.run(num_run, episodes)
+                qlearning_score, qlearning_correct_moves, qlearning_correct_mines = player.run(num_run, episodes, False)
                 print "Size of the board: %d * %d; Number of mines: %d;" % (i, i, num_mines)
-                print "Baseline score: %f; Q-Learning score: %f" (baseline_score, qlearning_score)
-                print "Baseline correct moves: %f; Q-Learning correct moves: %f" (baseline_correct_moves, qlearning_correct_moves)
-                print "Baseline correct mines: %f; Q-Learning correct mines: %f" (baseline_correct_mines, qlearning_correct_mines)
+                print "Baseline score: %f; Q-Learning score: %f" % (baseline_score, qlearning_score)
+                print "Baseline correct moves: %f; Q-Learning correct moves: %f" % (baseline_correct_moves, qlearning_correct_moves)
+                print "Baseline correct mines: %f; Q-Learning correct mines: %f" % (baseline_correct_mines, qlearning_correct_mines)
 
 
 if __name__ == '__main__':

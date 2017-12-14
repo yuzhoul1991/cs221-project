@@ -207,12 +207,18 @@ class RLPlayer(AIPlayer):
         for idx in range(num_times):
             # A new game
             player = AIPlayer(self.length, self.width, self.num_mines)
+            last_action = None
             # print "NEW GAME"
             while not player.gameEnds():
                 # print "NEW ACTION"
-                a = rl.getAction(player)
-                if idx == random_game_idx:
-                    print a
+                a = None
+                if last_action != None:
+                    a = player.chooseFromBasicRules(last_action[1], last_action[2])
+                if a == None:
+                    a = rl.getAction(player)
+                # if idx == random_game_idx:
+                #     print a
+                last_action = a
                 if a[0] == "quit":
                     break
                 player.move(a[0], a[1], a[2])
