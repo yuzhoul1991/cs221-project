@@ -33,7 +33,7 @@ class BacktrackingSearch():
 
         # List of all solutions found.
         self.allAssignments = []
-        self.max_assignment = collections.defaultdict(int)
+
 
     def print_stats(self):
         """
@@ -73,7 +73,7 @@ class BacktrackingSearch():
             if w == 0: return w
         return w
 
-    def solve(self, csp, mcv = False, ac3 = False):
+    def solve(self, csp, changed_var_list, mcv = False, ac3 = False):
         """
         Solves the given weighted CSP using heuristics as specified in the
         parameter. Note that unlike a typical unweighted CSP where the search
@@ -98,11 +98,27 @@ class BacktrackingSearch():
 
         # The dictionary of domains of every variable in the CSP.
         self.domains = {var: list(self.csp.values[var]) for var in self.csp.variables}
+        self.max_assignment = collections.defaultdict(int)
 
         # Perform backtracking search.
-        self.backtrack({}, 0, 1)
+        if len(self.allAssignments) > 0:
+            assignments_copy = self.allAssignments[:]
+            self.allAssignments = []
+            for assignment in assignments_copy:
+                if self.checkAssignment(assignment, changed_var_list):
+                    self.backtrack(assignment, len(assignment), 1)
+        else:
+            self.backtrack({}, 0, 1)
         # Print summary of solutions.
-        # self.print_stats()
+        self.print_stats()
+
+    def checkAssignment(self, assignment, changed_var_list):
+        for var in changed_var_list:
+            if var not in assignment:
+                continue
+            if assignment[var] not in self.domains[var]:
+                return False
+        return True
 
     def backtrack(self, assignment, numAssigned, weight):
         """
@@ -116,6 +132,9 @@ class BacktrackingSearch():
         @param numAssigned: Number of currently assigned variables
         @param weight: The weight of the current partial assignment.
         """
+        # if len(self.allAssignments) > 10:
+        #     print "we already have a lot of assignments"
+        #     return
 
         self.numOperations += 1
         assert weight > 0
@@ -271,11 +290,6 @@ def get_sum_variable(csp, name, variables, maxSum):
         iff the assignment of |variables| sums to |n|.
     """
     # BEGIN_YOUR_CODE (our solution is 18 lines of code, but don't worry if you deviate from this)
-    result = ('sum', name, len(variables))
-    csp.add_variable(result, range(maxSum + 1))
-    if len(variables) == 0:
-        csp.add_unary_factor(result, lambda val: val == 0)
-        return result
     for i, X_i in enumerate(variables):
         A_i = ('sum', name, i)
         csp.add_variable(A_i, [(x, y) for x in range(maxSum + 1) for y in range(maxSum + 1)])
@@ -284,42 +298,51 @@ def get_sum_variable(csp, name, variables, maxSum):
             csp.add_unary_factor(A_i, lambda b: b[0] == 0)
         else:
             csp.add_binary_factor(('sum', name, i - 1), A_i, lambda b1, b2: b1[1] == b2[0])
-    csp.add_binary_factor(A_i, result, lambda val, res: val[1] == res)
-    return result
+    csp.add_unary_factor(A_i, lambda val: val[1] == maxSum)
     # END_YOUR_CODE
 
 class CspAIPlayer(AIPlayer):
-    def run(self, save_log=False):
+    def run(self, save_log=True):
+        print self.seed
         csp = util.CSP()
+        solver = BacktrackingSearch()
         # First action is always (0,0).
         chance_flag = float(self.num_mines) / (self.length * self.width)
-        a = ("flag", 0, 0) if random.random() < chance_flag else ("click", 0, 0) 
+        a = ("flag", 0, 0) if random.random() < chance_flag else ("click", 0, 0)
+        self.num_flags_remaining = self.length * self.width
         added_variables = {(0, 0): 1}
         self.move(a[0], a[1], a[2])
         csp.add_variable((0, 0), [0, 1])
-        just_started = True
         sum_added = False
+        list_changed_var = []
+        known_tiles_to_explore = {}
         while not self.gameEnds():
+            # print a
+            # self.printPlayerBoard()
             revealed_tile = self.currentPlayerBoard[a[1]][a[2]]
             csp.values[(a[1], a[2])] = [0] if revealed_tile >= 0 else [1]
+            list_changed_var.append((a[1], a[2]))
+            # print "revealed tile is: " + str(revealed_tile)
+            list_surrounding_tiles = [(x1, y1) for x1 in range(a[1] - 1, a[1] + 2) if x1 >= 0 and x1 < self.length for y1 in range(a[2] - 1, a[2] + 2) if y1 >= 0 and y1 < self.width]
+            for x in list_surrounding_tiles:
+                if x not in added_variables:
+                    csp.add_variable(x, [0, 1])
+                    added_variables[x] = 1
             if revealed_tile != -1:
-                just_started = False
-                list_surrounding_tiles = [(x1, y1) for x1 in range(a[1] - 1, a[1] + 2) if x1 >= 0 and x1 < self.length for y1 in range(a[2] - 1, a[2] + 2) if y1 >= 0 and y1 < self.width]
-                for x in list_surrounding_tiles:
-                    if x not in added_variables:
-                        csp.add_variable(x, [0, 1])
-                        added_variables[x] = 1
-                sumVar = get_sum_variable(csp, "sum:(" + str(a[1]) + "," + str(a[2]) + ")", list_surrounding_tiles, revealed_tile)
-            elif just_started:
-                a = self.chooseAction(a[1], a[2])
-                self.move(a[0], a[1], a[2])
-                continue
+                get_sum_variable(csp, "sum:(" + str(a[1]) + "," + str(a[2]) + ")", list_surrounding_tiles, revealed_tile)
             if len(added_variables) == self.length * self.width and not sum_added:
-                sumVar = get_sum_variable(csp, "totalSum", list(added_variables.keys()), self.num_mines)
+                get_sum_variable(csp, "totalSum", list(added_variables.keys()), self.num_mines)
                 sum_added = True
-            solver = BacktrackingSearch()
-            solver.solve(csp, True, True)
-            pos, value = self.findMostOccurredPos(solver)
+            if len(known_tiles_to_explore) == 0:
+                solver.solve(csp, list_changed_var, False, True)
+                list_changed_var = []
+                for pos, value in self.findMostOccurredPos(solver):
+                    if pos not in known_tiles_to_explore:
+                        known_tiles_to_explore[pos] = value
+            else:
+                print "NOT calling solver - saves time ;)"
+            pos = known_tiles_to_explore.keys()[0]
+            value = known_tiles_to_explore.pop(pos)
             if value == 0:
                 a = ("click", pos[0], pos[1])
             else:
@@ -330,7 +353,6 @@ class CspAIPlayer(AIPlayer):
         return self.score, self.correct_moves, self.correct_mines
 
     def findMostOccurredPos(self, solver):
-        # First remove all the sum variables.
         d = copy.deepcopy(solver.max_assignment)
         for k in solver.max_assignment.keys():
             if type(k[0][0]) != int or type(k[0][1]) != int:
@@ -342,7 +364,7 @@ class CspAIPlayer(AIPlayer):
         for k in d.keys():
             if d[k] == maxOccurred:
                 maxL.append(k)
-        return random.choice(maxL)
+        return maxL
 
 
 
