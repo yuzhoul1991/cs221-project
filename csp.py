@@ -74,26 +74,9 @@ class BacktrackingSearch():
         return w
 
     def solve(self, csp, changed_var_list, mcv = False, ac3 = False):
-        """
-        Solves the given weighted CSP using heuristics as specified in the
-        parameter. Note that unlike a typical unweighted CSP where the search
-        terminates when one solution is found, we want this function to find
-        all possible assignments. The results are stored in the variables
-        described in reset_result().
-
-        @param csp: A weighted CSP.
-        @param mcv: When enabled, Most Constrained Variable heuristics is used.
-        @param ac3: When enabled, AC-3 will be used after each assignment of an
-            variable is made.
-        """
-        # CSP to be solved.
         self.csp = csp
-
-        # Set the search heuristics requested asked.
         self.mcv = mcv
         self.ac3 = ac3
-
-        # Reset solutions from previous search.
         self.reset_results()
 
         # The dictionary of domains of every variable in the CSP.
@@ -174,9 +157,6 @@ class BacktrackingSearch():
                     self.backtrack(assignment, numAssigned + 1, weight * deltaWeight)
                     del assignment[var]
         else:
-            # Arc consistency check is enabled.
-            # Problem 1c: skeleton code for AC-3
-            # You need to implement arc_consistency_check().
             for val in ordered_values:
                 deltaWeight = self.get_delta_weight(assignment, var, val)
                 if deltaWeight > 0:
@@ -197,28 +177,10 @@ class BacktrackingSearch():
                     del assignment[var]
 
     def get_unassigned_variable(self, assignment):
-        """
-        Given a partial assignment, return a currently unassigned variable.
-
-        @param assignment: A dictionary of current assignment. This is the same as
-            what you've seen so far.
-
-        @return var: a currently unassigned variable.
-        """
-
         if not self.mcv:
-            # Select a variable without any heuristics.
             for var in self.csp.variables:
                 if var not in assignment: return var
         else:
-            # Problem 1b
-            # Heuristic: most constrained variable (MCV)
-            # Select a variable with the least number of remaining domain values.
-            # Hint: given var, self.domains[var] gives you all the possible values
-            # Hint: get_delta_weight gives the change in weights given a partial
-            #       assignment, a variable, and a proposed value to this variable
-            # Hint: for ties, choose the variable with lowest index in self.csp.variables
-            # BEGIN_YOUR_CODE (our solution is 7 lines of code, but don't worry if you deviate from this)
             min_num_valid_choices = float('inf')
             result = None
             for var in self.csp.variables:
@@ -230,30 +192,7 @@ class BacktrackingSearch():
                             result = var
             return result
 
-
-            # END_YOUR_CODE
-
     def arc_consistency_check(self, var):
-        """
-        Perform the AC-3 algorithm. The goal is to reduce the size of the
-        domain values for the unassigned variables based on arc consistency.
-
-        @param var: The variable whose value has just been set.
-        """
-        # Problem 1c
-        # Hint: How to get variables neighboring variable |var|?
-        # => for var2 in self.csp.get_neighbor_vars(var):
-        #       # use var2
-        #
-        # Hint: How to check if a value or two values are inconsistent?
-        # - For unary factors
-        #   => self.csp.unaryFactors[var1][val1] == 0
-        #
-        # - For binary factors
-        #   => self.csp.binaryFactors[var1][var2][val1][val2] == 0
-        #   (self.csp.binaryFactors[var1][var2] returns a nested dict of all assignments)
-
-        # BEGIN_YOUR_CODE (our solution is 20 lines of code, but don't worry if you deviate from this)
         q = collections.deque([var])
         while len(q) > 0:
             v = q.popleft()
@@ -267,29 +206,8 @@ class BacktrackingSearch():
                 if self.domains[var2] != v2_list:
                     q.append(var2)
                 self.domains[var2] = v2_list
-        # END_YOUR_CODE
 
 def get_sum_variable(csp, name, variables, maxSum):
-    """
-    Given a list of |variables| each with non-negative integer domains,
-    returns the name of a new variable with domain range(0, maxSum+1), such that
-    it's consistent with the value |n| iff the assignments for |variables|
-    sums to |n|.
-
-    @param name: Prefix of all the variables that are going to be added.
-        Can be any hashable objects. For every variable |var| added in this
-        function, it's recommended to use a naming strategy such as
-        ('sum', |name|, |var|) to avoid conflicts with other variable names.
-    @param variables: A list of variables that are already in the CSP that
-        have non-negative integer values as its domain.
-    @param maxSum: An integer indicating the maximum sum value allowed. You
-        can use it to get the auxiliary variables' domain
-
-    @return result: The name of a newly created variable with domain range
-        [0, maxSum] such that it's consistent with an assignment of |n|
-        iff the assignment of |variables| sums to |n|.
-    """
-    # BEGIN_YOUR_CODE (our solution is 18 lines of code, but don't worry if you deviate from this)
     for i, X_i in enumerate(variables):
         A_i = ('sum', name, i)
         csp.add_variable(A_i, [(x, y) for x in range(maxSum + 1) for y in range(maxSum + 1)])
@@ -299,7 +217,6 @@ def get_sum_variable(csp, name, variables, maxSum):
         else:
             csp.add_binary_factor(('sum', name, i - 1), A_i, lambda b1, b2: b1[1] == b2[0])
     csp.add_unary_factor(A_i, lambda val: val[1] == maxSum)
-    # END_YOUR_CODE
 
 class CspAIPlayer(AIPlayer):
     def run(self, save_log=True):
@@ -365,12 +282,3 @@ class CspAIPlayer(AIPlayer):
             if d[k] == maxOccurred:
                 maxL.append(k)
         return maxL
-
-
-
-
-
-
-
-
-
