@@ -173,7 +173,7 @@ def simulate(mdp, rl, numTrials):
 
 
 class RLPlayer(AIPlayer):
-    def run(self, num_times, episodes=10000, save_log=True):
+    def run(self, num_times, with_baseline=False, episodes=10000, save_log=True):
         # It will first train itself.
         mdp = MiningMDP(self.length, self.width, self.num_mines)
         rl = QLearningAlgorithm(mdp.actions, mdp.discount(), ImprovedFeatureExtractor)
@@ -210,15 +210,15 @@ class RLPlayer(AIPlayer):
             last_action = None
             # print "NEW GAME"
             while not player.gameEnds():
-                # print "NEW ACTION"
-                a = None
-                if last_action != None:
-                    a = player.chooseFromBasicRules(last_action[1], last_action[2])
-                if a == None:
+                if with_baseline:
+                    a = None
+                    if last_action != None:
+                        a = player.chooseFromBasicRules(last_action[1], last_action[2])
+                    if a == None:
+                        a = rl.getAction(player)
+                    last_action = a
+                else:
                     a = rl.getAction(player)
-                # if idx == random_game_idx:
-                #     print a
-                last_action = a
                 if a[0] == "quit":
                     break
                 player.move(a[0], a[1], a[2])

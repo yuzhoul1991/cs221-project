@@ -86,14 +86,16 @@ def main():
     elif sys.argv[1] == "qlearning":
         num_run = 1 if len(sys.argv) < 6 else int(sys.argv[5])
         episodes = 10000 if len(sys.argv) < 7 else int(sys.argv[6])
+        with_baseline = True if len(sys.argv) >= 8 and sys.argv[7] == "with_baseline" else False
         player = RLPlayer(int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
-        score, correct_moves, correct_mines = player.run(num_run, episodes)
+        score, correct_moves, correct_mines = player.run(num_run, with_baseline, episodes)
         print "Final score is: " + str(score)
         print "Average correct moves is: " + str(correct_moves)
         print "Average correct mines is: " + str(correct_mines)
 
     elif sys.argv[1] == "csp":
         num_run = 1 if len(sys.argv) < 6 else int(sys.argv[5])
+        sys.setrecursionlimit(5000)
         score = 0.0
         correct_moves = 0.0
         correct_mines = 0.0
