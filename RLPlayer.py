@@ -173,7 +173,7 @@ def simulate(mdp, rl, numTrials):
 
 
 class RLPlayer(AIPlayer):
-    def run(self, num_times, episodes=10000, save_log=True):
+    def run(self, num_times, with_baseline=False, episodes=10000, save_log=True):
         # It will first train itself.
         mdp = MiningMDP(self.length, self.width, self.num_mines)
         rl = QLearningAlgorithm(mdp.actions, mdp.discount(), ImprovedFeatureExtractor)
@@ -200,23 +200,36 @@ class RLPlayer(AIPlayer):
         # Start num_times game.
         rl.explorationProb = 0
         score = 0.0
-        random_game_idx = random.random(0, num_times-1)
+        correct_moves = 0.0
+        correct_mines = 0.0
+        random_game_idx = random.randint(0, num_times-1)
+        games = []
         for idx in range(num_times):
             # A new game
             player = AIPlayer(self.length, self.width, self.num_mines)
+            last_action = None
             # print "NEW GAME"
             while not player.gameEnds():
-                # print "NEW ACTION"
-                a = rl.getAction(player)
-                if idx == random_game_idx:
-                    print a
+                if with_baseline:
+                    a = None
+                    if last_action != None:
+                        a = player.chooseFromBasicRules(last_action[1], last_action[2])
+                    if a == None:
+                        a = rl.getAction(player)
+                    last_action = a
+                else:
+                    a = rl.getAction(player)
                 if a[0] == "quit":
                     break
                 player.move(a[0], a[1], a[2])
             score += player.score
-            if idx == random_game_idx and save_log:
-                player.save('qlearning')
-        return score / num_times
+            correct_moves += player.correct_moves
+            correct_mines += player.correct_mines
+            games.append((player.score, player))
+        best_game = max(games)[1]
+        if save_log:
+            best_game.save('qlearning')
+        return score / num_times, correct_moves / num_times, correct_mines / num_times
 
 
 

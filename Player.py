@@ -18,6 +18,11 @@ class Player:
         self.score = 0
         self.num_flags_remaining = num_mines # Maximum number of flag option we can call
         self.logger = Logger(self.length, self.width, num_mines, self.seed)
+        # Number of correct moves we have made so far - i.e. click a non-mine tile or flag a mine tile.
+        self.correct_moves = 0
+        # Number of times where we flag a mine tile.
+        self.correct_mines = 0
+        self.known_tiles_to_explore = []
 
     def save(self, agent):
         self.logger.write(agent, self.score)
@@ -47,8 +52,13 @@ class Player:
         if self.currentPlayerBoard[x][y] == -1:
             self.score += reward_for_mine
             self.currentMines.append((x, y))
+            if reward_for_mine > 0:
+                self.correct_moves += 1
+                self.correct_mines += 1
             return reward_for_mine
         self.score += reward_for_normal
+        if reward_for_normal > 0:
+            self.correct_moves += 1
         return reward_for_normal
 
     # Returns value: reward in this action.
@@ -98,21 +108,7 @@ class AIPlayer(Player):
         elif action == "flag":
             return self.flag(x, y)
 
-class BaselineAIPlayer(AIPlayer):
-    def run(self, save_log=True):
-        # A list of tuples (action, position), where we know for 100% which action to apply for each position. If this list is empty, we will explore randomly.
-        self.known_tiles_to_explore = []
-        a = self.chooseAction(None, None)
-        # The agent might choose to quit, in the event that the best situation couldn't be further inferred.
-        while a[0] != "quit" and not self.gameEnds():
-            score = self.move(a[0], a[1], a[2])
-            a = self.chooseAction(a[1], a[2])
-        if save_log:
-            self.save('baseline')
-        return self.score
-
-    # @params: inputs are the position of last move.
-    def chooseAction(self, last_x, last_y):
+    def chooseFromBasicRules(self, last_x, last_y):
         # First, we define some simple rules based on the last action and the board.
         if last_x != None:
             # a list of positions that are neighbors of last action location and itself. At most 9.
@@ -154,7 +150,13 @@ class BaselineAIPlayer(AIPlayer):
             result = self.known_tiles_to_explore[0]
             self.known_tiles_to_explore = self.known_tiles_to_explore[1:]
             return result
+        return None
 
+    # @params: inputs are the position of last move.
+    def chooseAction(self, last_x, last_y):
+        moveFromBasicRules = self.chooseFromBasicRules(last_x, last_y)
+        if moveFromBasicRules != None:
+            return moveFromBasicRules
         # Finally, if none of the above rules apply, we will use random position.
         numRemainingMines = self.num_mines - len(self.currentMines)
         numRemainingCells = self.length * self.width - self.num_moves
@@ -168,3 +170,15 @@ class BaselineAIPlayer(AIPlayer):
         if random.random() < chance_flag and self.num_flags_remaining > 0:
             return "flag", randomCell[0], randomCell[1]
         return "click", randomCell[0], randomCell[1]
+
+class BaselineAIPlayer(AIPlayer):
+    def run(self, save_log=True):
+        # A list of tuples (action, position), where we know for 100% which action to apply for each position. If this list is empty, we will explore randomly.
+        a = self.chooseAction(None, None)
+        # The agent might choose to quit, in the event that the best situation couldn't be further inferred.
+        while a[0] != "quit" and not self.gameEnds():
+            score = self.move(a[0], a[1], a[2])
+            a = self.chooseAction(a[1], a[2])
+        if save_log:
+            self.save('baseline')
+        return self.score, self.correct_moves, self.correct_mines

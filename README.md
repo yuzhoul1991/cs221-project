@@ -4,8 +4,8 @@ Scoring mine sweeper ML project
 Actions: click, flag, hint, quit
 <p>To calculate score:</p>
 <ul>
-<li>click x,y: -20 if mine, +1 if not mine.</li>
-<li>flag x,y: +(30 + Remaining cells) if mine, -5 if not mine</li>
+<li>click x,y: -10 if mine, +2 if not mine.</li>
+<li>flag x,y: +15 if mine, -10 if not mine</li>
 <li>hint: -3, gives a location of a mine.</li>
 <li>if (x,y) is already explored: -50 (so that we won't stuck in loop)</li>
 </ul>
@@ -19,15 +19,14 @@ where LENGTH, WIDTH, MINES define the random board you want to create.
 
 ## commandline-version (for running various models and compare):
 
-python game.py AGENT LENGTH WIDTH MINES NUM_TIMES=1
+python game.py AGENT LENGTH WIDTH MINES NUM_TIMES=1 NUM_EPISODES=10000 {"with_baseline"}
 
-where AGENT is {baseline, qlearning}, and NUM_TIMES is default to 1 if not specified.
+where AGENT is {baseline, qlearning, csp}, and NUM_TIMES is default to 1 if not specified. NUM_EPISODES is only valid when AGENT is qlearning, and it represents how much episodes it trains from (default 10000). If "with_baseline" is added as the 7th argument, then the model will run with basic baseline logic.
 
-python game.py compare
+python nn_qlearning.py LENGTH WIDTH MINES
 
-This will run a thorough analysis on qlearning score v.s. baseline score (average score of 1000 games). It will be run on board size [3, 6, 9, 12, 16] * [3, 6, 9, 12, 16] with mine density [0.1, 0.25, 0.5, 0.7]. Since it runs 1000 games for 100 times, expect this to finish in ~1-2hrs. We use 10000 episodes to train each qlearning.
+This will invoke the qlearning with heuristics trained from NN (instead of our own features).
 
-This functionality will be useful when we generate the data for the report.
 
 ## commandline-version (for human interaction, not recommended):
 
