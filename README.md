@@ -17,6 +17,12 @@ python simulator.py human LENGTH WIDTH MINES
 
 where LENGTH, WIDTH, MINES define the random board you want to create.
 
+## UI-simulator (for replay of game log and visualization):
+
+python simulator.py simulate logs/<name of *.yml file>
+
+When evaluating different agent in real random game play, a game can be saved as a .yml file. The above command reads in the yaml file and replays the moves created by the agent in that game play on the GUI interface for visualization. 
+
 ## commandline-version (for running various models and compare):
 
 python game.py AGENT LENGTH WIDTH MINES NUM_TIMES=1 NUM_EPISODES=10000 {"with_baseline"}
