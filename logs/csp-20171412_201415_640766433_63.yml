@@ -1,0 +1,107 @@
+actions:
+- !!python/tuple
+    - click
+    - 0
+    - 0
+- !!python/tuple
+    - click
+    - 0
+    - 1
+- !!python/tuple
+    - click
+    - 1
+    - 0
+- !!python/tuple
+    - click
+    - 1
+    - 1
+- !!python/tuple
+    - click
+    - 1
+    - 2
+- !!python/tuple
+    - click
+    - 2
+    - 0
+- !!python/tuple
+    - click
+    - 2
+    - 2
+- !!python/tuple
+    - click
+    - 0
+    - 2
+- !!python/tuple
+    - click
+    - 2
+    - 1
+- !!python/tuple
+    - click
+    - 3
+    - 2
+- !!python/tuple
+    - click
+    - 1
+    - 3
+- !!python/tuple
+    - click
+    - 3
+    - 3
+- !!python/tuple
+    - click
+    - 3
+    - 0
+- !!python/tuple
+    - click
+    - 3
+    - 1
+- !!python/tuple
+    - click
+    - 2
+    - 3
+- !!python/tuple
+    - click
+    - 0
+    - 3
+- !!python/tuple
+    - flag
+    - 4
+    - 1
+- !!python/tuple
+    - click
+    - 4
+    - 4
+- !!python/tuple
+    - click
+    - 1
+    - 4
+- !!python/tuple
+    - click
+    - 4
+    - 3
+- !!python/tuple
+    - click
+    - 0
+    - 4
+- !!python/tuple
+    - click
+    - 4
+    - 2
+- !!python/tuple
+    - click
+    - 3
+    - 4
+- !!python/tuple
+    - click
+    - 2
+    - 4
+- !!python/tuple
+    - click
+    - 4
+    - 0
+config:
+    length: 5
+    num_mines: 1
+    seed: 640766433
+    width: 5
+final_score: 63

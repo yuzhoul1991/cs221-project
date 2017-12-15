@@ -1,0 +1,907 @@
+actions:
+- !!python/tuple
+    - click
+    - 14
+    - 14
+- !!python/tuple
+    - click
+    - 13
+    - 14
+- !!python/tuple
+    - click
+    - 14
+    - 13
+- !!python/tuple
+    - click
+    - 13
+    - 12
+- !!python/tuple
+    - click
+    - 13
+    - 13
+- !!python/tuple
+    - click
+    - 14
+    - 12
+- !!python/tuple
+    - click
+    - 14
+    - 11
+- !!python/tuple
+    - click
+    - 13
+    - 11
+- !!python/tuple
+    - click
+    - 14
+    - 10
+- !!python/tuple
+    - click
+    - 13
+    - 9
+- !!python/tuple
+    - click
+    - 13
+    - 10
+- !!python/tuple
+    - click
+    - 14
+    - 9
+- !!python/tuple
+    - click
+    - 12
+    - 9
+- !!python/tuple
+    - click
+    - 12
+    - 10
+- !!python/tuple
+    - click
+    - 12
+    - 11
+- !!python/tuple
+    - click
+    - 11
+    - 8
+- !!python/tuple
+    - click
+    - 11
+    - 9
+- !!python/tuple
+    - click
+    - 11
+    - 10
+- !!python/tuple
+    - click
+    - 12
+    - 8
+- !!python/tuple
+    - click
+    - 13
+    - 8
+- !!python/tuple
+    - click
+    - 11
+    - 11
+- !!python/tuple
+    - click
+    - 11
+    - 12
+- !!python/tuple
+    - click
+    - 12
+    - 12
+- !!python/tuple
+    - click
+    - 10
+    - 10
+- !!python/tuple
+    - click
+    - 10
+    - 11
+- !!python/tuple
+    - click
+    - 10
+    - 12
+- !!python/tuple
+    - click
+    - 10
+    - 13
+- !!python/tuple
+    - click
+    - 11
+    - 13
+- !!python/tuple
+    - click
+    - 12
+    - 13
+- !!python/tuple
+    - click
+    - 9
+    - 12
+- !!python/tuple
+    - click
+    - 9
+    - 13
+- !!python/tuple
+    - click
+    - 9
+    - 14
+- !!python/tuple
+    - click
+    - 10
+    - 14
+- !!python/tuple
+    - click
+    - 11
+    - 14
+- !!python/tuple
+    - click
+    - 8
+    - 12
+- !!python/tuple
+    - click
+    - 8
+    - 13
+- !!python/tuple
+    - click
+    - 8
+    - 14
+- !!python/tuple
+    - flag
+    - 12
+    - 14
+- !!python/tuple
+    - click
+    - 7
+    - 12
+- !!python/tuple
+    - click
+    - 7
+    - 13
+- !!python/tuple
+    - click
+    - 7
+    - 14
+- !!python/tuple
+    - click
+    - 6
+    - 12
+- !!python/tuple
+    - click
+    - 6
+    - 13
+- !!python/tuple
+    - click
+    - 6
+    - 14
+- !!python/tuple
+    - click
+    - 9
+    - 11
+- !!python/tuple
+    - click
+    - 5
+    - 14
+- !!python/tuple
+    - click
+    - 9
+    - 10
+- !!python/tuple
+    - click
+    - 11
+    - 7
+- !!python/tuple
+    - click
+    - 10
+    - 7
+- !!python/tuple
+    - click
+    - 12
+    - 7
+- !!python/tuple
+    - click
+    - 12
+    - 6
+- !!python/tuple
+    - click
+    - 11
+    - 6
+- !!python/tuple
+    - click
+    - 10
+    - 5
+- !!python/tuple
+    - click
+    - 10
+    - 6
+- !!python/tuple
+    - click
+    - 11
+    - 5
+- !!python/tuple
+    - click
+    - 12
+    - 5
+- !!python/tuple
+    - click
+    - 10
+    - 4
+- !!python/tuple
+    - click
+    - 11
+    - 4
+- !!python/tuple
+    - click
+    - 12
+    - 4
+- !!python/tuple
+    - click
+    - 13
+    - 4
+- !!python/tuple
+    - click
+    - 13
+    - 5
+- !!python/tuple
+    - click
+    - 13
+    - 6
+- !!python/tuple
+    - click
+    - 9
+    - 5
+- !!python/tuple
+    - click
+    - 9
+    - 4
+- !!python/tuple
+    - click
+    - 8
+    - 3
+- !!python/tuple
+    - click
+    - 8
+    - 4
+- !!python/tuple
+    - click
+    - 8
+    - 5
+- !!python/tuple
+    - click
+    - 9
+    - 3
+- !!python/tuple
+    - click
+    - 10
+    - 3
+- !!python/tuple
+    - click
+    - 7
+    - 3
+- !!python/tuple
+    - click
+    - 7
+    - 4
+- !!python/tuple
+    - click
+    - 7
+    - 5
+- !!python/tuple
+    - click
+    - 9
+    - 2
+- !!python/tuple
+    - click
+    - 10
+    - 2
+- !!python/tuple
+    - click
+    - 11
+    - 3
+- !!python/tuple
+    - click
+    - 14
+    - 4
+- !!python/tuple
+    - click
+    - 13
+    - 3
+- !!python/tuple
+    - click
+    - 14
+    - 3
+- !!python/tuple
+    - click
+    - 14
+    - 5
+- !!python/tuple
+    - flag
+    - 14
+    - 6
+- !!python/tuple
+    - click
+    - 11
+    - 2
+- !!python/tuple
+    - click
+    - 8
+    - 2
+- !!python/tuple
+    - click
+    - 9
+    - 1
+- !!python/tuple
+    - click
+    - 8
+    - 0
+- !!python/tuple
+    - click
+    - 8
+    - 1
+- !!python/tuple
+    - click
+    - 9
+    - 0
+- !!python/tuple
+    - click
+    - 10
+    - 0
+- !!python/tuple
+    - click
+    - 10
+    - 1
+- !!python/tuple
+    - click
+    - 11
+    - 0
+- !!python/tuple
+    - click
+    - 11
+    - 1
+- !!python/tuple
+    - click
+    - 12
+    - 0
+- !!python/tuple
+    - click
+    - 12
+    - 1
+- !!python/tuple
+    - click
+    - 9
+    - 7
+- !!python/tuple
+    - click
+    - 6
+    - 5
+- !!python/tuple
+    - click
+    - 4
+    - 14
+- !!python/tuple
+    - click
+    - 4
+    - 13
+- !!python/tuple
+    - click
+    - 3
+    - 14
+- !!python/tuple
+    - click
+    - 2
+    - 13
+- !!python/tuple
+    - click
+    - 2
+    - 14
+- !!python/tuple
+    - click
+    - 3
+    - 13
+- !!python/tuple
+    - click
+    - 1
+    - 13
+- !!python/tuple
+    - click
+    - 1
+    - 14
+- !!python/tuple
+    - click
+    - 2
+    - 12
+- !!python/tuple
+    - click
+    - 3
+    - 12
+- !!python/tuple
+    - click
+    - 4
+    - 12
+- !!python/tuple
+    - click
+    - 0
+    - 13
+- !!python/tuple
+    - click
+    - 0
+    - 14
+- !!python/tuple
+    - click
+    - 2
+    - 11
+- !!python/tuple
+    - click
+    - 6
+    - 6
+- !!python/tuple
+    - click
+    - 5
+    - 5
+- !!python/tuple
+    - click
+    - 5
+    - 6
+- !!python/tuple
+    - click
+    - 5
+    - 7
+- !!python/tuple
+    - click
+    - 6
+    - 7
+- !!python/tuple
+    - click
+    - 7
+    - 6
+- !!python/tuple
+    - click
+    - 7
+    - 7
+- !!python/tuple
+    - click
+    - 4
+    - 4
+- !!python/tuple
+    - click
+    - 4
+    - 5
+- !!python/tuple
+    - click
+    - 4
+    - 6
+- !!python/tuple
+    - click
+    - 5
+    - 4
+- !!python/tuple
+    - click
+    - 6
+    - 4
+- !!python/tuple
+    - click
+    - 4
+    - 7
+- !!python/tuple
+    - click
+    - 3
+    - 4
+- !!python/tuple
+    - click
+    - 3
+    - 5
+- !!python/tuple
+    - click
+    - 3
+    - 6
+- !!python/tuple
+    - click
+    - 5
+    - 3
+- !!python/tuple
+    - click
+    - 6
+    - 3
+- !!python/tuple
+    - click
+    - 4
+    - 11
+- !!python/tuple
+    - click
+    - 3
+    - 11
+- !!python/tuple
+    - click
+    - 2
+    - 10
+- !!python/tuple
+    - click
+    - 3
+    - 10
+- !!python/tuple
+    - click
+    - 4
+    - 10
+- !!python/tuple
+    - click
+    - 2
+    - 9
+- !!python/tuple
+    - click
+    - 3
+    - 9
+- !!python/tuple
+    - click
+    - 4
+    - 9
+- !!python/tuple
+    - click
+    - 1
+    - 8
+- !!python/tuple
+    - click
+    - 1
+    - 9
+- !!python/tuple
+    - click
+    - 1
+    - 10
+- !!python/tuple
+    - click
+    - 2
+    - 8
+- !!python/tuple
+    - click
+    - 3
+    - 8
+- !!python/tuple
+    - click
+    - 0
+    - 7
+- !!python/tuple
+    - click
+    - 0
+    - 8
+- !!python/tuple
+    - click
+    - 0
+    - 9
+- !!python/tuple
+    - click
+    - 1
+    - 7
+- !!python/tuple
+    - click
+    - 2
+    - 7
+- !!python/tuple
+    - click
+    - 0
+    - 10
+- !!python/tuple
+    - click
+    - 0
+    - 11
+- !!python/tuple
+    - flag
+    - 0
+    - 12
+- !!python/tuple
+    - flag
+    - 1
+    - 11
+- !!python/tuple
+    - flag
+    - 1
+    - 12
+- !!python/tuple
+    - click
+    - 0
+    - 6
+- !!python/tuple
+    - click
+    - 1
+    - 6
+- !!python/tuple
+    - click
+    - 2
+    - 6
+- !!python/tuple
+    - flag
+    - 1
+    - 5
+- !!python/tuple
+    - flag
+    - 2
+    - 5
+- !!python/tuple
+    - flag
+    - 3
+    - 7
+- !!python/tuple
+    - click
+    - 0
+    - 4
+- !!python/tuple
+    - click
+    - 0
+    - 3
+- !!python/tuple
+    - click
+    - 0
+    - 5
+- !!python/tuple
+    - click
+    - 1
+    - 3
+- !!python/tuple
+    - click
+    - 1
+    - 4
+- !!python/tuple
+    - click
+    - 0
+    - 2
+- !!python/tuple
+    - click
+    - 1
+    - 2
+- !!python/tuple
+    - click
+    - 2
+    - 2
+- !!python/tuple
+    - click
+    - 0
+    - 1
+- !!python/tuple
+    - click
+    - 2
+    - 1
+- !!python/tuple
+    - click
+    - 1
+    - 0
+- !!python/tuple
+    - click
+    - 3
+    - 0
+- !!python/tuple
+    - click
+    - 3
+    - 2
+- !!python/tuple
+    - click
+    - 8
+    - 10
+- !!python/tuple
+    - click
+    - 7
+    - 10
+- !!python/tuple
+    - click
+    - 5
+    - 12
+- !!python/tuple
+    - click
+    - 7
+    - 8
+- !!python/tuple
+    - click
+    - 6
+    - 9
+- !!python/tuple
+    - click
+    - 8
+    - 9
+- !!python/tuple
+    - click
+    - 7
+    - 9
+- !!python/tuple
+    - click
+    - 8
+    - 8
+- !!python/tuple
+    - click
+    - 9
+    - 8
+- !!python/tuple
+    - click
+    - 9
+    - 9
+- !!python/tuple
+    - click
+    - 8
+    - 7
+- !!python/tuple
+    - flag
+    - 10
+    - 8
+- !!python/tuple
+    - flag
+    - 10
+    - 9
+- !!python/tuple
+    - flag
+    - 8
+    - 6
+- !!python/tuple
+    - flag
+    - 9
+    - 6
+- !!python/tuple
+    - click
+    - 6
+    - 2
+- !!python/tuple
+    - click
+    - 0
+    - 0
+- !!python/tuple
+    - click
+    - 14
+    - 8
+- !!python/tuple
+    - click
+    - 5
+    - 1
+- !!python/tuple
+    - click
+    - 14
+    - 0
+- !!python/tuple
+    - click
+    - 14
+    - 1
+- !!python/tuple
+    - click
+    - 6
+    - 10
+- !!python/tuple
+    - click
+    - 7
+    - 0
+- !!python/tuple
+    - click
+    - 6
+    - 0
+- !!python/tuple
+    - click
+    - 5
+    - 0
+- !!python/tuple
+    - click
+    - 6
+    - 1
+- !!python/tuple
+    - click
+    - 7
+    - 1
+- !!python/tuple
+    - flag
+    - 7
+    - 2
+- !!python/tuple
+    - click
+    - 12
+    - 2
+- !!python/tuple
+    - flag
+    - 5
+    - 9
+- !!python/tuple
+    - flag
+    - 4
+    - 8
+- !!python/tuple
+    - flag
+    - 5
+    - 8
+- !!python/tuple
+    - flag
+    - 5
+    - 10
+- !!python/tuple
+    - flag
+    - 6
+    - 8
+- !!python/tuple
+    - click
+    - 13
+    - 7
+- !!python/tuple
+    - click
+    - 2
+    - 0
+- !!python/tuple
+    - click
+    - 8
+    - 11
+- !!python/tuple
+    - flag
+    - 7
+    - 11
+- !!python/tuple
+    - click
+    - 14
+    - 2
+- !!python/tuple
+    - flag
+    - 4
+    - 1
+- !!python/tuple
+    - click
+    - 13
+    - 1
+- !!python/tuple
+    - flag
+    - 13
+    - 0
+- !!python/tuple
+    - flag
+    - 13
+    - 2
+- !!python/tuple
+    - click
+    - 4
+    - 2
+- !!python/tuple
+    - flag
+    - 3
+    - 1
+- !!python/tuple
+    - flag
+    - 3
+    - 3
+- !!python/tuple
+    - flag
+    - 4
+    - 3
+- !!python/tuple
+    - flag
+    - 5
+    - 2
+- !!python/tuple
+    - click
+    - 2
+    - 3
+- !!python/tuple
+    - flag
+    - 2
+    - 4
+- !!python/tuple
+    - click
+    - 1
+    - 1
+- !!python/tuple
+    - click
+    - 5
+    - 11
+- !!python/tuple
+    - flag
+    - 6
+    - 11
+- !!python/tuple
+    - flag
+    - 4
+    - 0
+- !!python/tuple
+    - flag
+    - 5
+    - 13
+- !!python/tuple
+    - flag
+    - 12
+    - 3
+- !!python/tuple
+    - flag
+    - 14
+    - 7
+config:
+    length: 15
+    num_mines: 45
+    seed: 153467363
+    width: 15
+final_score: 673
