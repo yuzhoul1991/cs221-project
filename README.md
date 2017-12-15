@@ -19,9 +19,9 @@ where LENGTH, WIDTH, MINES define the random board you want to create.
 
 ## commandline-version (for running various models and compare):
 
-python game.py AGENT LENGTH WIDTH MINES NUM_TIMES=1 NUM_EPISODES=10000
+python game.py AGENT LENGTH WIDTH MINES NUM_TIMES=1 NUM_EPISODES=10000 {"with_baseline"}
 
-where AGENT is {baseline, qlearning, csp}, and NUM_TIMES is default to 1 if not specified. NUM_EPISODES is only valid when AGENT is qlearning, and it represents how much episodes it trains from (default 10000).
+where AGENT is {baseline, qlearning, csp}, and NUM_TIMES is default to 1 if not specified. NUM_EPISODES is only valid when AGENT is qlearning, and it represents how much episodes it trains from (default 10000). If "with_baseline" is added as the 7th argument, then the model will run with basic baseline logic.
 
 python nn_qlearning.py LENGTH WIDTH MINES
 
