@@ -23,23 +23,18 @@ python simulator.py simulate logs/<name of *.yml file>
 
 When evaluating different agent in real random game play, a game can be saved as a .yml file. The above command reads in the yaml file and replays the moves created by the agent in that game play on the GUI interface for visualization. 
 
-## CNN agent evaluation
-
-python cnn_qlearning.py ./ckpt/<filename>.ckpt
-
-We experimented with cnn as function approximator without hand extracting features. 
-The trained model is saved in a tensorflow ckpt file under the ckpt directory for different board layout and mine density. Use the above command to reload the model and play 100 random games with it. 
-
-
 ## commandline-version (for running various models and compare):
 
 python game.py AGENT LENGTH WIDTH MINES NUM_TIMES=1 NUM_EPISODES=10000 {"with_baseline"}
 
 where AGENT is {baseline, qlearning, csp}, and NUM_TIMES is default to 1 if not specified. NUM_EPISODES is only valid when AGENT is qlearning, and it represents how much episodes it trains from (default 10000). If "with_baseline" is added as the 7th argument, then the model will run with basic baseline logic.
 
-python nn_qlearning.py LENGTH WIDTH MINES
+## CNN agent evaluation
 
-This will invoke the qlearning with heuristics trained from NN (instead of our own features).
+python cnn_qlearning.py ./ckpt/<filename>.ckpt
+
+We experimented with cnn as function approximator without hand extracting features. 
+The trained model is saved in a tensorflow ckpt file under the ckpt directory for different board layout and mine density. Use the above command to reload the model and play 100 random games with it. 
 
 
 ## commandline-version (for human interaction, not recommended):
