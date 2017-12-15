@@ -1,4 +1,5 @@
 import pdb
+import sys
 import random
 import numpy as np
 import tensorflow as tf
@@ -24,7 +25,7 @@ class NNPlayerMDP(MiningMDP):
                 if player.currentPlayerBoard[x][y] == '-1':
                     boardState[0][x][y][9] = 1
                 # undiscovered tile
-                elif player.currentPlayerBoard[x][y] == 'x': 
+                elif player.currentPlayerBoard[x][y] == 'x':
                     boardState[0][x][y][10] = 1
                 # discovered numbered tile
                 else:
@@ -43,7 +44,7 @@ class NNPlayer(AIPlayer):
         W2 = tf.get_variable("W2", [4, 4, 64, 128], initializer=tf.contrib.layers.xavier_initializer(seed=self.seed))
         W3 = tf.get_variable("W3", [3, 3, 128, 256], initializer=tf.contrib.layers.xavier_initializer(seed=self.seed))
         parameters = {
-            "W1" : W1,        
+            "W1" : W1,
             "W2" : W2,
             "W3" : W3,
         }
@@ -90,8 +91,8 @@ class NNPlayer(AIPlayer):
         elif word == 'flag':
             return self.width * self.length + y*self.width + x
 
-    def run(self, episodes=1000, save_log=True):
-        explorationProb = 0.2
+    def run(self, episodes=2000, save_log=True):
+        explorationProb = 0.3
         mdp = NNPlayerMDP(self.length, self.width, self.num_mines)
         discount = mdp.discount()
         X, Y = self._create_placeholders(self.length, self.width, 11, self.length*self.width*2)
@@ -101,68 +102,77 @@ class NNPlayer(AIPlayer):
         cost = self._compute_cost(Z, Y)
         trainer = tf.train.AdamOptimizer(learning_rate=0.004)
         updateModel = trainer.minimize(cost)
-        
-        init = tf.initialize_all_variables()
-        with tf.Session() as sess:
-            sess.run(init)
-            for i in range(episodes):
-                if i % 100 == 0 and i != 0:
-                    print "iteration: {}, loss: {}".format(i, running_cost)
-                state = mdp.startState()
-                boardState = mdp.startBoardState()
-                while True:
-                    # chose next action
-                    allQ = sess.run(Z, feed_dict={
-                        X: boardState
-                    }).flatten()
-                    _, nextAction, index = self.getActionFromNNOutput(mdp, state, allQ)
-                    if random.random() < explorationProb:
-                        nextAction = random.choice(mdp.actions(state))
-                        index = self.actionToQIndex(nextAction)
-                    # run the action through mdp to get new state and reward
-                    newState, reward = mdp.succAndProbReward(state, nextAction)
-                    newBoardState = mdp.updateBoardState()
-                    if newState == None:
-                        break
 
-                    # get qvalue of new state from nn
-                    allNextStateQ = sess.run(Z, feed_dict={
-                        X: newBoardState
-                    }).flatten()
-                    maxQ = np.max(allNextStateQ)
-                    #targetQ = np.zeros((1, 2*self.width*self.length), dtype=np.float32)
-                    targetQ = allQ
-                    targetQ[index] = reward + discount * maxQ
-                    
-                    # do an iteration of backprop with the targetQ values
-                    _, running_cost = sess.run([updateModel, cost], feed_dict={
-                        X: boardState,
-                        Y: targetQ
-                    })
+        init = tf.global_variables_initializer()
+        saver = tf.train.Saver()
 
-                    #print "Cost: {}".format(running_cost)
-
+        if check_point_file:
             # try some games
-            score = 0.0
-            for _ in range(100):
-                player = AIPlayer(self.length, self.width, self.num_mines)
-                boardState = mdp.startBoardState()
-                state = player
-                while not player.gameEnds():
-                    allQ = sess.run(predictedQvalues, feed_dict={X: boardState})
-                    pdb.set_trace()
-                    boardState = mdp.updateBoardState(player)
-                    _, nextAction, index = self.getActionFromNNOutput(mdp, state, allQ)
-                    player.move(*nextAction)
-                score += player.score
-            print "Average score {}".format(score/100)
+            saver = tf.train.Saver()
+            with tf.Session() as sess:
+                saver.restore(sess, check_point_file)
+                print("Model restored")
+
+                score = 0.0
+                for _ in range(100):
+                    player = AIPlayer(self.length, self.width, self.num_mines)
+                    boardState = mdp.startBoardState()
+                    state = player
+                    while not player.gameEnds():
+                        allQ = sess.run(Z, feed_dict={X: boardState}).flatten()
+                        boardState = mdp.updateBoardState(player)
+                        _, nextAction, index = self.getActionFromNNOutput(mdp, state, allQ)
+                        player.move(*nextAction)
+                    score += player.score
+                    print("Player score {}".format(player.score))
+                print("Average score {}".format(score/100))
+        else:
+            with tf.Session() as sess:
+                sess.run(init)
+                for i in range(episodes):
+                    if i % 100 == 0 and i != 0:
+                        print("iteration: {}, loss: {}".format(i, running_cost))
+                        save_path = saver.save(sess, "./ckpt/cnn_10_10_40.ckpt")
+                        print("Checkpoint saved")
+                    state = mdp.startState()
+                    boardState = mdp.startBoardState()
+                    while True:
+                        # chose next action
+                        allQ = sess.run(Z, feed_dict={
+                            X: boardState
+                        }).flatten()
+                        _, nextAction, index = self.getActionFromNNOutput(mdp, state, allQ)
+                        if random.random() < explorationProb:
+                            nextAction = random.choice(mdp.actions(state))
+                            index = self.actionToQIndex(nextAction)
+                        # run the action through mdp to get new state and reward
+                        newState, reward = mdp.succAndProbReward(state, nextAction)
+                        newBoardState = mdp.updateBoardState()
+                        if newState == None:
+                            break
+
+                        # get qvalue of new state from nn
+                        allNextStateQ = sess.run(Z, feed_dict={
+                            X: newBoardState
+                        }).flatten()
+                        maxQ = np.max(allNextStateQ)
+                        #targetQ = np.zeros((1, 2*self.width*self.length), dtype=np.float32)
+                        targetQ = allQ
+                        targetQ[index] = reward + discount * maxQ
+
+                        # do an iteration of backprop with the targetQ values
+                        _, running_cost = sess.run([updateModel, cost], feed_dict={
+                            X: boardState,
+                            Y: targetQ
+                        })
+
+                        #print "Cost: {}".format(running_cost)
 
 
-
+global check_point_file
 if __name__ == '__main__':
-    agent = NNPlayer(10, 10, 10)
+    agent = NNPlayer(10, 10, 40)
+    check_point_file = None
+    if len(sys.argv) > 1:
+        check_point_file = sys.argv[1]
     agent.run()
-
-
-
-
