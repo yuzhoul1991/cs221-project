@@ -10,31 +10,31 @@ class NNPlayerMDP(MiningMDP):
     def startBoardState(self):
         # 11 one hot channels: 0-8 for discovered tile number, 9 for discovered mine, 10 for undiscovered tiles
         # everything starts with undiscovered
-        state = np.zeros(self.width, self.length, 11)
-        state[:,:,10] = 1
+        state = np.zeros((1, self.width, self.length, 11), dtype=np.float32)
+        state[:,:,:,10] = 1
         return state
 
     def updateBoardState(self, player=None):
         if not player:
             player = self.player
-        boardState = np.zeros(self.width, self.length, 11)
+        boardState = np.zeros((1, self.width, self.length, 11), dtype=np.float32)
         for y in range(self.length):
             for x in range(self.width):
                 # discovered mine
                 if player.currentPlayerBoard[x][y] == '-1':
-                    boardState[x][y][9] = 1
+                    boardState[0][x][y][9] = 1
                 # undiscovered tile
                 elif player.currentPlayerBoard[x][y] == 'x': 
-                    boardState[x][y][10] = 1
+                    boardState[0][x][y][10] = 1
                 # discovered numbered tile
                 else:
-                    boardState[x][y][int(player.currentPlayerBoard[x][y])] = 1
+                    boardState[0][x][y][int(player.currentPlayerBoard[x][y])] = 1
         return boardState
 
 class NNPlayer(AIPlayer):
     def _create_placeholders(self, n_h0, n_w0, n_c0, n_y):
         X = tf.placeholder(tf.float32, shape=(None, n_h0, n_w0, n_c0), name='X')
-        Y = tf.placeholder(tf.float32, shape=(None, n_y), name='Y')
+        Y = tf.placeholder(tf.float32, shape=(n_y), name='Y')
         return X, Y
 
     def _initialize_parameters(self):
@@ -57,18 +57,19 @@ class NNPlayer(AIPlayer):
         Z1 = tf.nn.conv2d(X, W1, strides=[1,1,1,1], padding='SAME')
         A1 = tf.nn.relu(Z1)
         P1 = tf.nn.max_pool(A1, ksize=[1,4,4,1], strides=[1,4,4,1], padding='SAME')
-        Z2 = ff.nn.conv2d(P1, W2, strides=[1,1,1,1], padding='SAME')
+        Z2 = tf.nn.conv2d(P1, W2, strides=[1,1,1,1], padding='SAME')
         A2 = tf.nn.relu(Z2)
         P2 = tf.nn.max_pool(A2, ksize=[1,4,4,1], strides=[1,4,4,1], padding='SAME')
-        Z3 = ff.nn.conv2d(P2, W3, strides=[1,1,1,1], padding='SAME')
+        Z3 = tf.nn.conv2d(P2, W3, strides=[1,1,1,1], padding='SAME')
         A3 = tf.nn.relu(Z3)
         P3 = tf.nn.max_pool(A3, ksize=[1,3,3,1], strides=[1,3,3,1], padding='SAME')
-        Z4 = tf.contrib.layers.fully_connected(P3, 2*self.width*self.height, activation_fn=None)
+        P3 = tf.contrib.layers.flatten(P3)
+        Z4 = tf.contrib.layers.fully_connected(P3, 2*self.width*self.length, activation_fn=None)
 
         return Z4
 
     def _compute_cost(self, Z, Y):
-        return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=Z, labels=Y))
+        return tf.reduce_mean((Z-Y)**2)
 
     def getActionFromNNOutput(self, mdp, state, qvalues):
         legalActions = mdp.actions(state)
@@ -90,17 +91,15 @@ class NNPlayer(AIPlayer):
             return self.width * self.length + y*self.width + x
 
     def run(self, episodes=1000, save_log=True):
-        explorationProb = 0.5
+        explorationProb = 0.2
         mdp = NNPlayerMDP(self.length, self.width, self.num_mines)
         discount = mdp.discount()
-        self.input_dimension = self.length * self.width
-        self.output_dimension = self.input_dimension * 2
-        X, Y = self._create_placeholders()
+        X, Y = self._create_placeholders(self.length, self.width, 11, self.length*self.width*2)
         parameters = self._initialize_parameters()
         # These qvalues include those for invalid actions needs filtering
-        predictedQvalues = self._forward_propagation(X, parameters)
-        cost = self._compute_cost(predictedQvalues, Y)
-        trainer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+        Z = self._forward_propagation(X, parameters)
+        cost = self._compute_cost(Z, Y)
+        trainer = tf.train.AdamOptimizer(learning_rate=0.004)
         updateModel = trainer.minimize(cost)
         
         init = tf.initialize_all_variables()
@@ -113,9 +112,9 @@ class NNPlayer(AIPlayer):
                 boardState = mdp.startBoardState()
                 while True:
                     # chose next action
-                    allQ = sess.run(predictedQvalues, feed_dict={
+                    allQ = sess.run(Z, feed_dict={
                         X: boardState
-                    })
+                    }).flatten()
                     _, nextAction, index = self.getActionFromNNOutput(mdp, state, allQ)
                     if random.random() < explorationProb:
                         nextAction = random.choice(mdp.actions(state))
@@ -125,19 +124,16 @@ class NNPlayer(AIPlayer):
                     newBoardState = mdp.updateBoardState()
                     if newState == None:
                         break
-                    #print newBoardState
 
                     # get qvalue of new state from nn
-
-                    allNextStateQ = sess.run(predictedQvalues, feed_dict={
+                    allNextStateQ = sess.run(Z, feed_dict={
                         X: newBoardState
-                    })
+                    }).flatten()
                     maxQ = np.max(allNextStateQ)
+                    #targetQ = np.zeros((1, 2*self.width*self.length), dtype=np.float32)
                     targetQ = allQ
                     targetQ[index] = reward + discount * maxQ
                     
-                    #pdb.set_trace()
-
                     # do an iteration of backprop with the targetQ values
                     _, running_cost = sess.run([updateModel, cost], feed_dict={
                         X: boardState,
@@ -154,6 +150,7 @@ class NNPlayer(AIPlayer):
                 state = player
                 while not player.gameEnds():
                     allQ = sess.run(predictedQvalues, feed_dict={X: boardState})
+                    pdb.set_trace()
                     boardState = mdp.updateBoardState(player)
                     _, nextAction, index = self.getActionFromNNOutput(mdp, state, allQ)
                     player.move(*nextAction)
@@ -163,7 +160,7 @@ class NNPlayer(AIPlayer):
 
 
 if __name__ == '__main__':
-    agent = NNPlayer(5, 5, 3)
+    agent = NNPlayer(10, 10, 10)
     agent.run()
 
 
